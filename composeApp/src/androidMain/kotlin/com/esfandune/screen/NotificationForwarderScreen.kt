@@ -2,6 +2,7 @@ package com.esfandune.screen
 
 import android.content.Intent
 import android.provider.Settings
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.PowerSettingsNew
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SettingsInputComponent
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.Button
@@ -126,7 +128,7 @@ fun NotificationForwarderScreen() {
                         modifier = Modifier.padding(end = 8.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.SettingsInputComponent,
+                            imageVector = Icons.Outlined.Settings,
                             contentDescription = "Server Settings"
                         )
                     }
@@ -199,7 +201,7 @@ fun NotificationForwarderScreen() {
             }
 
             // Server Settings Section
-            if (showServerSettings) {
+            AnimatedVisibility  (showServerSettings) {
                 OutlinedCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
