@@ -35,7 +35,8 @@ class NotificationViewModel : ViewModel() {
                     serverIp = settings.serverIp,
                     serverPort = settings.serverPort,
                     notificationsSent = settings.notificationsSent,
-                    lastConnectionTime = settings.lastConnectionTime
+                    lastConnectionTime = settings.lastConnectionTime,
+                    excludedPackages = settings.excludedPackages // Load excluded packages
                 )
             }
         }
@@ -45,11 +46,12 @@ class NotificationViewModel : ViewModel() {
         viewModelScope.launch {
             settingsManager?.let { manager ->
                 val currentSettings = manager.getSettings()
+                // Preserve excludedPackages when saving other settings
                 val newSettings = currentSettings.copy(
                     serverIp = serverIp,
                     serverPort = serverPort
                 )
-                manager.saveSettings(newSettings)
+                manager.saveSettings(newSettings) // This now saves all fields of AppSettings
 
                 _uiState.value = _uiState.value.copy(
                     serverIp = serverIp,
@@ -59,6 +61,23 @@ class NotificationViewModel : ViewModel() {
             } ?: run {
                 _uiState.value = _uiState.value.copy(
                     statusMessage = "خطا: SettingsManager مقداردهی نشده"
+                )
+            }
+        }
+    }
+
+    // New function to save excluded packages
+    fun saveExcludedPackages(packages: List<String>) {
+        viewModelScope.launch {
+            settingsManager?.let { manager ->
+                manager.saveExcludedPackages(packages.toSet())
+                _uiState.value = _uiState.value.copy(
+                    excludedPackages = packages.toSet(),
+                    statusMessage = "لیست برنامه‌های مستثنی ذخیره شد"
+                )
+            } ?: run {
+                _uiState.value = _uiState.value.copy(
+                    statusMessage = "خطا: SettingsManager مقداردهی نشده است"
                 )
             }
         }
@@ -83,7 +102,7 @@ class NotificationViewModel : ViewModel() {
             )
             return
         }
-
+        // Logic for starting the service remains the same
         _uiState.value = _uiState.value.copy(
             isServiceRunning = true,
             statusMessage = "سرویس فوروارد شروع شد"
@@ -91,13 +110,14 @@ class NotificationViewModel : ViewModel() {
     }
 
     fun stopForwardingService(context: Context) {
+        // Logic for stopping the service remains the same
         _uiState.value = _uiState.value.copy(
             isServiceRunning = false,
             statusMessage = "سرویس فوروارد متوقف شد"
         )
     }
 
-    fun refreshStats() {
+    fun refreshStats() { // Renamed from refreshUiState to be more specific, and now reloads all settings
         settingsManager?.let {
             loadSettingsFromManager()
         }

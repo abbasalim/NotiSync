@@ -11,9 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -37,8 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.esfandune.screen.NotificationViewModel
-
+import com.esfandune.component.selector.AppSelectorView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,19 +52,62 @@ fun NotificationForwarderScreen() {
     var serverIp by remember { mutableStateOf("192.168.1.100") }
     var serverPort by remember { mutableStateOf("8080") }
 
+    var showAppSelectorDialog by remember { mutableStateOf(false) }
+    var tempSelectedExcludedPackages by remember { mutableStateOf<Set<String>>(emptySet()) }
+
     LaunchedEffect(Unit) {
-        viewModel.initializeWithContext(context)
+        viewModel.initializeWithContext(context) // This should load excludedPackages into uiState
     }
 
     LaunchedEffect(uiState.serverIp, uiState.serverPort) {
         serverIp = uiState.serverIp
         serverPort = uiState.serverPort.toString()
     }
+    // Update tempSelectedExcludedPackages if uiState.excludedPackages changes from an external source
+    // This is important if settings can be changed elsewhere or on init
+    LaunchedEffect(uiState.excludedPackages) {
+        tempSelectedExcludedPackages = uiState.excludedPackages
+    }
+
+
+    if (showAppSelectorDialog) {
+        AlertDialog(
+            onDismissRequest = { showAppSelectorDialog = false },
+            title = { Text("انتخاب برنامه‌های مستثنی") },
+            text = {
+                // Ensure AppSelectorView is given enough space if the list is long
+                androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxWidth().height(400.dp)) { // Adjust height as needed
+                    AppSelectorView(
+                        preselectedPackages = uiState.excludedPackages.toList(),
+                        onSelectionChanged = { updatedSelection ->
+                            tempSelectedExcludedPackages = updatedSelection.toSet()
+                        }
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.saveExcludedPackages(tempSelectedExcludedPackages.toList()) // ViewModel function to be added
+                        showAppSelectorDialog = false
+                    }
+                ) {
+                    Text("ذخیره")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showAppSelectorDialog = false }) {
+                    Text("لغو")
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()), // Added for scrollability
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
@@ -70,7 +115,7 @@ fun NotificationForwarderScreen() {
             style = MaterialTheme.typography.headlineMedium
         )
 
-        // Permission Status
+        // Permission Status Card (existing code)
         Card(
             colors = CardDefaults.cardColors(
                 containerColor = if (uiState.hasNotificationPermission)
@@ -110,7 +155,7 @@ fun NotificationForwarderScreen() {
             }
         }
 
-        // Service Status
+        // Service Status Card (existing code)
         Card(
             colors = CardDefaults.cardColors(
                 containerColor = if (uiState.isServiceRunning)
@@ -136,7 +181,7 @@ fun NotificationForwarderScreen() {
             }
         }
 
-        // Server Configuration
+        // Server Configuration Card (existing code)
         Card(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -166,9 +211,11 @@ fun NotificationForwarderScreen() {
 
                 Button(
                     onClick = {
-                        viewModel.saveSettings(
+                        viewModel.saveSettings( // This should also save excludedPackages if AppSettings is the single source of truth
                             serverIp = serverIp,
                             serverPort = serverPort.toIntOrNull() ?: 8080
+                            // Consider if excludedPackages should be part of this saveSettings call
+                            // or handled separately by saveExcludedPackages
                         )
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -178,7 +225,20 @@ fun NotificationForwarderScreen() {
             }
         }
 
-        // Control Buttons
+        // Excluded Apps Button - NEW
+        Button(
+            onClick = {
+                // Initialize with current settings from uiState when dialog is opened
+                tempSelectedExcludedPackages = uiState.excludedPackages
+                showAppSelectorDialog = true
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("تنظیم برنامه‌های مستثنی (${uiState.excludedPackages.size})")
+        }
+
+
+        // Control Buttons (existing code)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -201,7 +261,7 @@ fun NotificationForwarderScreen() {
             }
         }
 
-        // Statistics
+        // Statistics Card (existing code)
         Card(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -213,11 +273,11 @@ fun NotificationForwarderScreen() {
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text("نوتیفیکیشن‌های ارسال شده: ${uiState.notificationsSent}")
-                Text("آخرین اتصال: ${if (uiState.lastConnectionTime.isNotEmpty()) uiState.lastConnectionTime else "هرگز"}")
+                Text("آخرین اتصال: ${uiState.lastConnectionTime.ifEmpty { "هرگز" }}")
             }
         }
 
-        // Status Messages
+        // Status Messages Card (existing code)
         uiState.statusMessage?.let { message ->
             Card(
                 colors = CardDefaults.cardColors(
