@@ -16,6 +16,9 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import java.awt.Toolkit
+import java.awt.datatransfer.DataFlavor
+import java.awt.datatransfer.UnsupportedFlavorException
 
 class NotificationServer(private val notificationManager: NotificationManager) {
     private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? =
@@ -52,6 +55,21 @@ class NotificationServer(private val notificationManager: NotificationManager) {
 
                 get("/") {
                     call.respondText("Notification Server is running!")
+                }
+                get("/clipboard") {
+                    try {
+                        val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+                        val contents = clipboard.getData(DataFlavor.stringFlavor) as? String
+                        if (!contents.isNullOrEmpty()) {
+                            call.respond(mapOf<String, Any?>("status" to "success", "content" to contents))
+                        } else {
+                            call.respond(mapOf<String, Any?>("status" to "empty", "message" to "Clipboard is empty or doesn't contain text"))
+                        }
+                    } catch (e: UnsupportedFlavorException) {
+                        call.respond(mapOf<String, Any?>("status" to "error", "message" to "Clipboard content is not text"))
+                    } catch (e: Exception) {
+                        call.respond(mapOf<String, Any?>("status" to "error", "message" to (e.message ?: "Failed to access clipboard")))
+                    }
                 }
             }
         }
