@@ -30,6 +30,8 @@ import com.esfandune.model.NotificationData
 import com.esfandune.ui.NotificationCard
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import java.net.Inet4Address
+import java.net.NetworkInterface
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,7 +104,7 @@ fun MainApp() {
                     )
                 ) {
                     Text(
-                        text = "آدرس سرور: http://localhost:8080",
+                        text = "http://${getDeviceIp()}:8080",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.padding(16.dp)
@@ -147,6 +149,12 @@ fun MainApp() {
         }
     }
 }
+
+private fun getDeviceIp(): String = NetworkInterface.getNetworkInterfaces()
+    .toList()
+    .find { it.name == "wlan0" || it.name.startsWith("en") }?.inetAddresses
+    ?.toList()
+    ?.firstOrNull { !it.isLoopbackAddress && it is Inet4Address }?.hostAddress ?: "Not Found Ip"
 
 
 suspend fun sendReadConfirmation(notification: NotificationData) {
