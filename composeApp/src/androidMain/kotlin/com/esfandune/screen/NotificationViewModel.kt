@@ -96,27 +96,6 @@ class NotificationViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(hasNotificationPermission = hasPermission)
     }
 
-    fun startForwardingService(context: Context) {
-        if (!_uiState.value.hasNotificationPermission) {
-            _uiState.value = _uiState.value.copy(
-                statusMessage = "لطفاً ابتدا دسترسی نوتیفیکیشن را فعال کنید"
-            )
-            return
-        }
-        // Logic for starting the service remains the same
-        _uiState.value = _uiState.value.copy(
-            isServiceRunning = true,
-            statusMessage = "سرویس فوروارد شروع شد"
-        )
-    }
-
-    fun stopForwardingService(context: Context) {
-        // Logic for stopping the service remains the same
-        _uiState.value = _uiState.value.copy(
-            isServiceRunning = false,
-            statusMessage = "سرویس فوروارد متوقف شد"
-        )
-    }
 
     fun refreshStats() { // Renamed from refreshUiState to be more specific, and now reloads all settings
         settingsManager?.let {

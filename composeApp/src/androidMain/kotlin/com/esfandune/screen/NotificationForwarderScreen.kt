@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,21 +21,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.ContentPaste
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.NotificationsOff
-import androidx.compose.material.icons.outlined.PowerSettingsNew
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SettingsInputComponent
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
@@ -46,8 +39,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -111,7 +102,7 @@ fun NotificationForwarderScreen() {
 
 
     Scaffold(
-        topBar = { MainTopBar{ showServerSettings = !showServerSettings } },
+        topBar = { MainTopBar { showServerSettings = !showServerSettings } },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -140,7 +131,7 @@ fun NotificationForwarderScreen() {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Permission Status Card
-                StatusCard(
+                ButtonCard(
                     modifier = Modifier.weight(1f),
                     title = "وضعیت دسترسی",
                     status = if (uiState.hasNotificationPermission) "فعال" else "غیرفعال",
@@ -156,18 +147,15 @@ fun NotificationForwarderScreen() {
                 )
 
                 // Service Status Card
-                StatusCard(
+                ButtonCard(
                     modifier = Modifier.weight(1f),
-                    title = "وضعیت سرویس",
-                    status = if (uiState.isServiceRunning) "در حال اجرا" else "متوقف",
-                    icon = Icons.Outlined.PowerSettingsNew,
-                    isActive = uiState.isServiceRunning,
+                    title = "عدم ارسال اعلاانات",
+                    status = "${uiState.excludedPackages.size} برنامه ",
+                    icon = Icons.Outlined.NotificationsOff,
+                    isActive = uiState.excludedPackages.isNotEmpty(),
                     onClick = {
-                        if (uiState.isServiceRunning) {
-                            viewModel.stopForwardingService()
-                        } else {
-                            viewModel.startForwardingService()
-                        }
+                        tempSelectedExcludedPackages = uiState.excludedPackages
+                        showAppSelectorDialog = true
                     }
                 )
             }
@@ -271,41 +259,10 @@ fun NotificationForwarderScreen() {
 
                     StatItem(
                         label = "آخرین اتصال:",
-                        value = if (uiState.lastConnectionTime.isNotEmpty()) uiState.lastConnectionTime else "هرگز"
+                        value = uiState.lastConnectionTime.ifEmpty { "هرگز" }
                     )
 
-                    if (uiState.isServiceRunning) {
-                        LinearProgressIndicator(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(4.dp)
-                                .clip(RoundedCornerShape(2.dp)),
-                            color = MaterialTheme.colorScheme.primary,
-                            trackColor = MaterialTheme.colorScheme.primaryContainer
-                        )
-                    }
                 }
-            }
-
-            // Excluded Apps Button
-            OutlinedButton(
-                onClick = {
-                    tempSelectedExcludedPackages = uiState.excludedPackages
-                    showAppSelectorDialog = true
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Info,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("${uiState.excludedPackages.size} برنامه مستثنی شده")
             }
 
             if (showAppSelectorDialog) {
@@ -382,7 +339,7 @@ fun NotificationForwarderScreen() {
 }
 
 @Composable
-fun StatusCard(
+fun ButtonCard(
     modifier: Modifier = Modifier,
     title: String,
     status: String,
