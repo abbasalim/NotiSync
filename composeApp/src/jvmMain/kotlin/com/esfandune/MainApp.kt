@@ -72,7 +72,7 @@ fun MainApp() {
                     FloatingActionButton(
                         onClick = {
                             coroutineScope.launch {
-//                                notificationManager.clearAll()
+                                notificationManager.clearAll()
                                 snackbarHostState.showSnackbar("تمامی اعلان‌ها پاک شدند")
                             }
                         },

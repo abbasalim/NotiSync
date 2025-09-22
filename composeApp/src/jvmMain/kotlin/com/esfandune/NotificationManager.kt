@@ -46,6 +46,10 @@ class NotificationManager {
         }
     }
 
+    fun clearAll() {
+        _notifications.clear()
+    }
+
     fun addNotification(notification: NotificationData) {
         _notifications.add(0, notification)
         showSystemNotification(notification)
