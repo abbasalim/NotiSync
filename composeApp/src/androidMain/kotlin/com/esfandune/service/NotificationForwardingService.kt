@@ -31,8 +31,8 @@ class NotificationForwardingService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        notificationService = NotificationService()
-        settingsManager = SettingsManager(this)
+        val settings = SettingsManager(this).getSettings()
+        notificationService = NotificationService(  serverIp = settings.serverIp, serverPort = settings.serverPort)
         createNotificationChannel()
     }
 
@@ -46,7 +46,7 @@ class NotificationForwardingService : Service() {
 
         serviceScope.launch {
             try {
-                val settings = settingsManager.getSettings()
+
                 val success = notificationService.sendNotification(
                     NotificationData(
                         title = title,
@@ -55,8 +55,7 @@ class NotificationForwardingService : Service() {
 //                        appIcon = AppData(packageManager).getAppIcon(appPackage)?.toBitmap(64, 64),
                         packageName = appPackage
                     ),
-                    serverIp = settings.serverIp,
-                    serverPort = settings.serverPort
+
                 )
 
                 if (success) {

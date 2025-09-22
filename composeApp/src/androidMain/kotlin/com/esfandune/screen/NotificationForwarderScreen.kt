@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.PowerSettingsNew
@@ -136,26 +137,15 @@ fun NotificationForwarderScreen() {
             )
         },
         floatingActionButton = {
-            if (uiState.hasNotificationPermission) {
-                FloatingActionButton(
-                    onClick = {
-                        if (uiState.isServiceRunning) {
-                            viewModel.stopForwardingService(context)
-                        } else {
-                            viewModel.startForwardingService(context)
-                        }
-                    },
-                    containerColor = if (uiState.isServiceRunning) MaterialTheme.colorScheme.errorContainer
-                    else MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = if (uiState.isServiceRunning) MaterialTheme.colorScheme.onErrorContainer
-                    else MaterialTheme.colorScheme.onPrimaryContainer
-                ) {
-                    Icon(
-                        imageVector = if (uiState.isServiceRunning) Icons.Outlined.NotificationsOff
-                        else Icons.Outlined.PowerSettingsNew,
-                        contentDescription = if (uiState.isServiceRunning) "Stop Service" else "Start Service"
-                    )
-                }
+            FloatingActionButton(
+                onClick = {
+                    viewModel.getClipboard(context)
+                },
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.ContentPaste,
+                    contentDescription = "get Server Clipboard"
+                )
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -196,12 +186,18 @@ fun NotificationForwarderScreen() {
                     status = if (uiState.isServiceRunning) "در حال اجرا" else "متوقف",
                     icon = Icons.Outlined.PowerSettingsNew,
                     isActive = uiState.isServiceRunning,
-                    onClick = {}
+                    onClick = {
+                        if (uiState.isServiceRunning) {
+                            viewModel.stopForwardingService(context)
+                        } else {
+                            viewModel.startForwardingService(context)
+                        }
+                    }
                 )
             }
 
             // Server Settings Section
-            AnimatedVisibility  (showServerSettings) {
+            AnimatedVisibility(showServerSettings) {
                 OutlinedCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {

@@ -2,6 +2,7 @@ package com.esfandune
 
 
 import androidx.compose.ui.text.toLowerCase
+import com.esfandune.model.ClipboardData
 import com.esfandune.model.NotificationData
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.install
@@ -61,14 +62,14 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                         val clipboard = Toolkit.getDefaultToolkit().systemClipboard
                         val contents = clipboard.getData(DataFlavor.stringFlavor) as? String
                         if (!contents.isNullOrEmpty()) {
-                            call.respond(mapOf<String, Any?>("status" to "success", "content" to contents))
+                            call.respond(ClipboardData(contents, null))
                         } else {
-                            call.respond(mapOf<String, Any?>("status" to "empty", "message" to "Clipboard is empty or doesn't contain text"))
+                            call.respond(ClipboardData(null,"Clipboard is empty or doesn't contain text"))
                         }
                     } catch (e: UnsupportedFlavorException) {
-                        call.respond(mapOf<String, Any?>("status" to "error", "message" to "Clipboard content is not text"))
+                        call.respond(ClipboardData(null, "Clipboard content is not text"))
                     } catch (e: Exception) {
-                        call.respond(mapOf<String, Any?>("status" to "error", "message" to (e.message ?: "Failed to access clipboard")))
+                        call.respond(ClipboardData(null, "Failed to access clipboard"))
                     }
                 }
             }

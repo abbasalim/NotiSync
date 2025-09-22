@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esfandune.model.UiState
 import com.esfandune.service.NotificationListenerService
+import com.esfandune.service.NotificationService
 import com.esfandune.setting.SettingsManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -125,5 +126,18 @@ class NotificationViewModel : ViewModel() {
 
     fun clearStatusMessage() {
         _uiState.value = _uiState.value.copy(statusMessage = null)
+    }
+
+    fun getClipboard(context: Context) {
+        settingsManager?.getSettings()?.let { settings ->
+            val notificationService =
+                NotificationService(serverIp = settings.serverIp, serverPort = settings.serverPort)
+            viewModelScope.launch {
+                val clipboard = notificationService.getClipboard(context)
+                _uiState.value = _uiState.value.copy(
+                    statusMessage = clipboard.content ?: clipboard.error ?: "unknown error"
+                )
+            }
+        }
     }
 }
