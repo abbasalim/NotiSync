@@ -68,6 +68,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.esfandune.component.selector.AppSelectorView
+import com.esfandune.screen.component.MainTopBar
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,32 +111,7 @@ fun NotificationForwarderScreen() {
 
 
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "NotiSync",
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
-                    )
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.primary
-                ),
-                actions = {
-                    IconButton(
-                        onClick = { showServerSettings = !showServerSettings },
-                        modifier = Modifier.padding(end = 8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Settings,
-                            contentDescription = "Server Settings"
-                        )
-                    }
-                }
-            )
-        },
+        topBar = { MainTopBar{ showServerSettings = !showServerSettings } },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -188,9 +164,9 @@ fun NotificationForwarderScreen() {
                     isActive = uiState.isServiceRunning,
                     onClick = {
                         if (uiState.isServiceRunning) {
-                            viewModel.stopForwardingService(context)
+                            viewModel.stopForwardingService()
                         } else {
-                            viewModel.startForwardingService(context)
+                            viewModel.startForwardingService()
                         }
                     }
                 )

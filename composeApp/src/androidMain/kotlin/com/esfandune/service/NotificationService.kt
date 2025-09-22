@@ -26,7 +26,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-class NotificationService(private val serverIp: String, private val serverPort: Int) {
+class NotificationService( serverIp: String,  serverPort: Int) {
     val baseUrl = "http://$serverIp:$serverPort"
     private val client = HttpClient {
         install(ContentNegotiation) {
