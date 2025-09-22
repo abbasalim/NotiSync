@@ -21,11 +21,12 @@ import java.util.Locale
 
 @Composable
 fun NotificationCard(
+    modifier: Modifier = Modifier,
     notification: NotificationData,
     onMarkAsRead: () -> Unit
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp),
 //        elevation = 4.dp
@@ -56,7 +57,7 @@ fun NotificationCard(
                     onClick = onMarkAsRead,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
                 ) {
-                    Text("خوانده شد", color = Color.White)
+                    Text("پاک", color = Color.White)
                 }
             }
         }

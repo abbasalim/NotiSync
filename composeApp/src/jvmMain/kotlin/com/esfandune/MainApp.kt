@@ -1,5 +1,12 @@
 package com.esfandune
 
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -131,18 +138,22 @@ fun MainApp() {
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(notificationManager.notifications) { notification ->
-                            NotificationCard(
-                                notification = notification,
-                                onMarkAsRead = {
-                                    coroutineScope.launch {
-                                        sendReadConfirmation(notification)
-                                        notificationManager.markAsRead(notification)
-                                        snackbarHostState.showSnackbar("علامت‌گذاری به عنوان خوانده شده")
-                                    }
-                                }
-                            )
-                        }
+                        items(
+                            items = notificationManager.notifications,
+                            key = { it.timestamp },
+                            itemContent = { notification ->
+                                    NotificationCard(
+                                        notification = notification,
+                                        modifier = Modifier.animateItem(),
+                                        onMarkAsRead = {
+                                            coroutineScope.launch {
+                                                sendReadConfirmation(notification)
+                                                notificationManager.markAsRead(notification)
+                                            }
+                                        }
+                                    )
+                            }
+                        )
                     }
                 }
             }
