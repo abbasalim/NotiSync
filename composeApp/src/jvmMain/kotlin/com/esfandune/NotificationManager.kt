@@ -51,8 +51,24 @@ class NotificationManager {
     }
 
     fun addNotification(notification: NotificationData) {
-        _notifications.add(0, notification)
-        showSystemNotification(notification)
+        if (_notifications.isNotEmpty() && _notifications.first().packageName == notification.packageName) {
+            val existingNotification = _notifications.first()
+            val combinedMessage = "${existingNotification.message}\n${notification.message}"
+            
+            // Remove the old notification
+            _notifications.removeFirst()
+            
+            // Add the new combined notification
+            val updatedNotification = notification.copy(
+                message = combinedMessage,
+                timestamp = notification.timestamp
+            )
+            _notifications.add(0, updatedNotification)
+            showSystemNotification(updatedNotification)
+        } else {
+            _notifications.add(0, notification)
+            showSystemNotification(notification)
+        }
     }
 
     private fun showSystemNotification(notification: NotificationData) {
