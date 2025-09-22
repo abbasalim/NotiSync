@@ -1,6 +1,7 @@
 package com.esfandune.service
 
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -37,23 +38,17 @@ class NotificationListenerService : NotificationListenerService() {
 
             val title = extras.getCharSequence("android.title")?.toString() ?: ""
             val text = extras.getCharSequence("android.text")?.toString() ?: ""
-            val appName = getAppName(packageName)
-
             if (title.isNotEmpty() || text.isNotEmpty()) {
-                Log.d("NotificationListener", "Processing notification: $appName - $title: $text")
+                Log.d("NotificationListener", "Processing notification: $packageName - $title: $text")
 
                 // Send to forwarding service
                 val intent = Intent(this, NotificationForwardingService::class.java).apply {
-                    putExtra("title", if (title.isNotEmpty()) "$appName: $title" else appName)
+                    putExtra("title", title)
                     putExtra("message", text)
                     putExtra("package", packageName) // Keep sending package name for potential future use
                 }
-                // Consider using startForegroundService if this service can run in the background for a long time
-                // For immediate processing, startService is also an option, but for tasks triggered by notifications,
-                // startForegroundService is often more appropriate for reliability.
-                // However, NotificationForwardingService itself calls startForeground, so this might be okay.
-                startService(intent) // Changed from startForegroundService to startService as NotificationForwardingService handles its own foreground state.
-                                     // If NotificationForwardingService doesn't always start foreground, then startForegroundService(intent) might be better here.
+
+                startService(intent)
             }
         }
     }
@@ -63,13 +58,5 @@ class NotificationListenerService : NotificationListenerService() {
         // Handle notification removal if needed
     }
 
-    private fun getAppName(packageName: String): String {
-        return try {
-            val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
-            packageManager.getApplicationLabel(applicationInfo).toString()
-        } catch (e: Exception) {
-            Log.e("NotificationListener", "Error getting app name for $packageName", e)
-            packageName
-        }
-    }
+
 }

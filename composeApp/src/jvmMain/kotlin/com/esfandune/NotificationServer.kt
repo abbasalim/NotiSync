@@ -1,18 +1,21 @@
 package com.esfandune
 
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.ui.text.toLowerCase
 import com.esfandune.model.NotificationData
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.install
+import io.ktor.server.engine.EmbeddedServer
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.netty.NettyApplicationEngine
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.routing
 
 class NotificationServer(private val notificationManager: NotificationManager) {
     private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? =
@@ -28,7 +31,9 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                 post("/notification") {
                     try {
                         val notification = call.receive<NotificationData>()
-                        notificationManager.addNotification(notification)
+                        if (isNotExclude(notification))
+                            notificationManager.addNotification(notification)
+
                         call.respond(mapOf("status" to "success"))
                     } catch (e: Exception) {
                         call.respond(mapOf("status" to "error", "message" to e.message))
@@ -52,6 +57,16 @@ class NotificationServer(private val notificationManager: NotificationManager) {
         }
         server?.start(wait = false)
         println("Server started on port $port")
+    }
+
+    private fun isNotExclude(notification: NotificationData): Boolean {
+        if (notification.appName.lowercase() in listOf<String>("system ui","واسط کاربری سیستم")) {
+            println("${notification.packageName} ${notification.appName} is exclude")
+            return false
+        } else {
+            println("${notification.packageName} ${notification.appName} is not exclude")
+            return true
+        }
     }
 
     fun stop() {

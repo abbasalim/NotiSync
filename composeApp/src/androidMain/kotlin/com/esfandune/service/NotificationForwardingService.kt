@@ -9,6 +9,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import com.esfandune.model.NotificationData
 import com.esfandune.setting.SettingsManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,7 @@ class NotificationForwardingService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val title = intent?.getStringExtra("title") ?: return START_NOT_STICKY
         val message = intent.getStringExtra("message") ?: ""
+        val appPackage = intent.getStringExtra("package") ?: ""
         intent.getStringExtra("package") ?: ""
 
         startForeground(NOTIFICATION_ID, createForegroundNotification())
@@ -45,8 +47,13 @@ class NotificationForwardingService : Service() {
             try {
                 val settings = settingsManager.getSettings()
                 val success = notificationService.sendNotification(
-                    title = title,
-                    message = message,
+                    NotificationData(
+                        title = title,
+                        message = message,
+                        appName = AppData(packageManager).getAppName(appPackage),
+//                        appIcon = AppData(packageManager).getAppIcon(appPackage)?.toBitmap(64, 64),
+                        packageName = appPackage
+                    ),
                     serverIp = settings.serverIp,
                     serverPort = settings.serverPort
                 )

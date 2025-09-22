@@ -2,6 +2,7 @@ package com.esfandune
 
 import androidx.compose.runtime.mutableStateListOf
 import com.esfandune.model.NotificationData
+import com.esfandune.util.packageToEmoji
 import java.awt.SystemTray
 import java.awt.TrayIcon
 import java.io.File
@@ -46,13 +47,13 @@ class NotificationManager {
     }
 
     fun addNotification(notification: NotificationData) {
-        _notifications.add(0, notification) // Add to beginning
+        _notifications.add(0, notification)
         showSystemNotification(notification)
     }
 
     private fun showSystemNotification(notification: NotificationData) {
         trayIcon?.displayMessage(
-            notification.title,
+            "${notification.packageName.packageToEmoji()} ${notification.appName}: ${notification.title}",
             notification.message,
             TrayIcon.MessageType.INFO
         )

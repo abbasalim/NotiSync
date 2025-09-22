@@ -1,6 +1,5 @@
 package com.esfandune.service
 
-
 import com.esfandune.model.NotificationData
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -14,15 +13,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-
-
-@Serializable
-data class ServerResponse(
-    val status: String,
-    val message: String? = null
-)
 
 class NotificationService {
     private val client = HttpClient {
@@ -38,20 +29,14 @@ class NotificationService {
     }
 
     suspend fun sendNotification(
-        title: String,
-        message: String,
+        data: NotificationData,
         serverIp: String,
         serverPort: Int
     ): Boolean {
         return try {
-            val notification = NotificationData(
-                title = title,
-                message = message
-            )
-
             val response: HttpResponse = client.post("http://$serverIp:$serverPort/notification") {
                 contentType(ContentType.Application.Json)
-                setBody(notification)
+                setBody(data)
                 timeout {
                     requestTimeoutMillis = 5000
                     connectTimeoutMillis = 5000
