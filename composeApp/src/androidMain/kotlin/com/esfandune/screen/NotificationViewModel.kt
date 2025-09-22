@@ -1,17 +1,17 @@
-package com.esfandune
+package com.esfandune.screen
 
 import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.esfandune.model.UiState
+import com.esfandune.service.NotificationListenerService
 import com.esfandune.setting.SettingsManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
 
 class NotificationViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(UiState())

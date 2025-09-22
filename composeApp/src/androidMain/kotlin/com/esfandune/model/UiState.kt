@@ -1,5 +1,4 @@
-package com.esfandune
-
+package com.esfandune.model
 
 data class UiState(
     val hasNotificationPermission: Boolean = false,

@@ -1,6 +1,7 @@
-package com.esfandune
+package com.esfandune.service
 
 
+import android.R
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -87,7 +88,7 @@ class NotificationForwardingService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("فوروارد نوتیفیکیشن")
             .setContentText("در حال ارسال نوتیفیکیشن‌ها به دسکتاپ")
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_dialog_info)
             .build()
     }
 }
