@@ -1,5 +1,6 @@
 package com.esfandune.screen
 
+
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
@@ -59,6 +60,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.esfandune.component.selector.AppSelectorView
+import com.esfandune.screen.component.ClipboardContentDialog
 import com.esfandune.screen.component.MainTopBar
 import kotlinx.coroutines.launch
 
@@ -67,7 +69,7 @@ import kotlinx.coroutines.launch
 fun NotificationForwarderScreen() {
     val viewModel: NotificationViewModel = viewModel()
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.uiState.collectAsState()
 
@@ -93,13 +95,12 @@ fun NotificationForwarderScreen() {
     // Show snackbar when status message changes
     LaunchedEffect(uiState.statusMessage) {
         uiState.statusMessage?.let { message ->
-            scope.launch {
+            coroutineScope.launch {
                 snackbarHostState.showSnackbar(message)
                 viewModel.clearStatusMessage()
             }
         }
     }
-
 
     Scaffold(
         topBar = { MainTopBar { showServerSettings = !showServerSettings } },
@@ -336,6 +337,14 @@ fun NotificationForwarderScreen() {
 
         }
     }
+
+
+    viewModel.lastClipboardData.value?.let { data ->
+        ClipboardContentDialog(
+            clipboardData = data,
+            onDismiss = { viewModel.lastClipboardData.value = null },
+        )
+    }
 }
 
 @Composable
@@ -413,4 +422,6 @@ fun StatItem(label: String, value: String) {
         )
     }
 }
+
+
 

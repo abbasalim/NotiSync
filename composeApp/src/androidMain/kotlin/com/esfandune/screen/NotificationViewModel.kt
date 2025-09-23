@@ -29,7 +29,7 @@ class NotificationViewModel : ViewModel() {
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private var settingsManager: SettingsManager? = null
-    private var clipboardData = mutableStateOf<ClipboardData?>(null)
+    val lastClipboardData = mutableStateOf<ClipboardData?>(null)
 
     fun initializeWithContext(context: Context) {
         if (settingsManager == null) {
@@ -134,71 +134,24 @@ class NotificationViewModel : ViewModel() {
                         Log.d("clipboard", "Copied text to clipboard: ${clipboardData.text.take(50)}...")
                     }
                     !clipboardData.imageData.isNullOrEmpty() -> {
-                        // Handle image content
-                        try {
-                            val imageBytes = android.util.Base64.decode(clipboardData.imageData, android.util.Base64.DEFAULT)
-                            val clip = ClipData.newUri(
-                                context.contentResolver,
-                                "image_content",
-                                "content://com.esfandune.notisync/clipboard_image.png".toUri()
-                            )
-
-                            // Save image to cache and share it
-                            val context = context.applicationContext
-                            val cacheDir = File(context.cacheDir, "shared_images")
-                            if (!cacheDir.exists()) {
-                                cacheDir.mkdirs()
-                            }
-
-                            val file = File(cacheDir, "shared_image_${System.currentTimeMillis()}.png")
-                            FileOutputStream(file).use { output ->
-                                output.write(imageBytes)
-                            }
-
-                            // Create a content URI using FileProvider
-                            val contentUri = FileProvider.getUriForFile(
-                                context,
-                                "${context.packageName}.fileprovider",
-                                file
-                            )
-
-                            // Create share intent
-                            val shareIntent = Intent().apply {
-                                action = Intent.ACTION_SEND
-                                putExtra(Intent.EXTRA_STREAM, contentUri)
-                                type = clipboardData.mimeType ?: "image/png"
-                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            }
-
-                            // Start the share activity
-                            val shareIntentChooser = Intent.createChooser(
-                                shareIntent,
-                                "اشتراک‌گذاری تصویر دریافتی"
-                            )
-                            shareIntentChooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            context.startActivity(shareIntentChooser)
-
-                            Log.d("clipboard", "Image shared successfully")
-                        } catch (e: Exception) {
-                            Log.e("clipboard", "Failed to process image data", e)
-                            return clipboardData.copy(error = "Failed to process image data: ${e.message}")
-                        }
+                        lastClipboardData.value = clipboardData
                     }
                     !clipboardData.fileData.isNullOrEmpty() -> {
+                        lastClipboardData.value = clipboardData
                         // Handle file content
-                        try {
-                            val fileBytes = android.util.Base64.decode(clipboardData.fileData, android.util.Base64.DEFAULT)
-                            val fileName = clipboardData.fileName ?: "clipboard_file"
-                            val mimeType = clipboardData.mimeType ?: "application/octet-stream"
-
-                            Log.d("clipboard", "Received file: $fileName (${fileBytes.size} bytes), MIME type: $mimeType")
-
-                            // In a real app, you'd want to save this to a file and share it via FileProvider
-                            // For now, we'll just log it
-                        } catch (e: Exception) {
-                            Log.e("clipboard", "Failed to process file data", e)
-                            return clipboardData.copy(error = "Failed to process file data: ${e.message}")
-                        }
+//                        try {
+//                            val fileBytes = android.util.Base64.decode(clipboardData.fileData, android.util.Base64.DEFAULT)
+//                            val fileName = clipboardData.fileName ?: "clipboard_file"
+//                            val mimeType = clipboardData.mimeType ?: "application/octet-stream"
+//
+//                            Log.d("clipboard", "Received file: $fileName (${fileBytes.size} bytes), MIME type: $mimeType")
+//
+//                            // In a real app, you'd want to save this to a file and share it via FileProvider
+//                            // For now, we'll just log it
+//                        } catch (e: Exception) {
+//                            Log.e("clipboard", "Failed to process file data", e)
+//                            return clipboardData.copy(error = "Failed to process file data: ${e.message}")
+//                        }
                     }
                     !clipboardData.error.isNullOrEmpty() -> {
                         Log.d("clipboard", "Server returned error: ${clipboardData.error}")
