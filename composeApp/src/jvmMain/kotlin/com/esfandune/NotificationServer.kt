@@ -71,14 +71,7 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                         val transferable = clipboard.getContents(null)
                         
                         when {
-                            transferable.isDataFlavorSupported(DataFlavor.stringFlavor) -> {
-                                val text = transferable.getTransferData(DataFlavor.stringFlavor) as? String
-                                if (!text.isNullOrEmpty()) {
-                                    call.respond(ClipboardData.createText(text))
-                                } else {
-                                    call.respond(ClipboardData.createError("Clipboard is empty or doesn't contain text"))
-                                }
-                            }
+                            //ترتبیبشون مهمه! اول عکس بعد فایل بعد متن
                             transferable.isDataFlavorSupported(DataFlavor.imageFlavor) -> {
                                 val image = transferable.getTransferData(DataFlavor.imageFlavor) as? Image
                                 if (image != null) {
@@ -86,8 +79,8 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                                         image
                                     } else {
                                         val bufferedImage = BufferedImage(
-                                            image.getWidth(null), 
-                                            image.getHeight(null), 
+                                            image.getWidth(null),
+                                            image.getHeight(null),
                                             BufferedImage.TYPE_INT_ARGB
                                         )
                                         val g = bufferedImage.createGraphics()
@@ -95,12 +88,12 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                                         g.dispose()
                                         bufferedImage
                                     }
-                                    
+
                                     val outputStream = ByteArrayOutputStream()
                                     ImageIO.write(bufferedImage, "png", outputStream)
                                     val imageBytes = outputStream.toByteArray()
                                     val base64Image = Base64.getEncoder().encodeToString(imageBytes)
-                                    
+
                                     call.respond(ClipboardData.createImage(base64Image, "image/png"))
                                 } else {
                                     call.respond(ClipboardData.createError("Failed to get image from clipboard"))
@@ -114,7 +107,7 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                                         val fileBytes = Files.readAllBytes(file.toPath())
                                         val base64File = Base64.getEncoder().encodeToString(fileBytes)
                                         val mimeType = Files.probeContentType(file.toPath()) ?: "application/octet-stream"
-                                        
+
                                         call.respond(
                                             ClipboardData.createFile(
                                                 fileData = base64File,
@@ -127,6 +120,14 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                                     }
                                 } else {
                                     call.respond(ClipboardData.createError("No files found in clipboard"))
+                                }
+                            }
+                            transferable.isDataFlavorSupported(DataFlavor.stringFlavor) -> {
+                                val text = transferable.getTransferData(DataFlavor.stringFlavor) as? String
+                                if (!text.isNullOrEmpty()) {
+                                    call.respond(ClipboardData.createText(text))
+                                } else {
+                                    call.respond(ClipboardData.createError("Clipboard is empty or doesn't contain text"))
                                 }
                             }
                             else -> {
