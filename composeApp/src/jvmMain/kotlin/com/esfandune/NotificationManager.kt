@@ -21,15 +21,20 @@ class NotificationManager {
         if (SystemTray.isSupported()) {
             val systemTray = SystemTray.getSystemTray()
 
-            // Create tray icon (you need to add an icon file to resources)
+            // Create tray icon
             val image = try {
-                ImageIO.read(File("icon.png"))
+                val iconUrl = javaClass.classLoader.getResource("try_icon.png")
+                if (iconUrl != null) {
+                    ImageIO.read(iconUrl)
+                } else {
+                    throw Exception("Icon not found in resources")
+                }
             } catch (e: Exception) {
                 // Create a simple colored square if no icon is found
                 val bufferedImage =
                     java.awt.image.BufferedImage(16, 16, java.awt.image.BufferedImage.TYPE_INT_RGB)
                 val g = bufferedImage.createGraphics()
-                g.color = java.awt.Color.BLUE
+                g.color = java.awt.Color.WHITE
                 g.fillRect(0, 0, 16, 16)
                 g.dispose()
                 bufferedImage
