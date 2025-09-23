@@ -1,40 +1,27 @@
-package com.esfandune
+package com.esfandune.ui
 
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ClearAll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.esfandune.util.packageToEmoji
+import com.esfandune.NotificationManager
+import com.esfandune.NotificationServer
 import com.esfandune.model.NotificationData
-import com.esfandune.ui.NotificationCard
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import java.net.Inet4Address
@@ -49,6 +36,7 @@ fun MainApp() {
     val server = remember { NotificationServer(notificationManager) }
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    var selectedPackage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         server.start()
@@ -59,6 +47,39 @@ fun MainApp() {
             server.stop()
         }
     }
+
+    @Composable
+    fun FilterApps() {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+                .horizontalScroll(rememberScrollState())
+        ) {
+            FilterChip(
+                selected = selectedPackage == null,
+                onClick = { selectedPackage = null },
+                label = { Text("همه") },
+                modifier = Modifier.padding(end = 4.dp)
+            )
+            notificationManager.notifications.distinctBy { it.packageName } .forEach { app ->
+                FilterChip(
+                    selected = selectedPackage == app.packageName,
+                    onClick = { selectedPackage = app.packageName },
+                    label = {
+                        Text(
+                            text = "${app.packageName.packageToEmoji()} ${app.appName}",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    modifier = Modifier.padding(end = 4.dp)
+                )
+            }
+        }
+    }
+
+
 
     MaterialTheme() {
         Scaffold(
@@ -118,7 +139,13 @@ fun MainApp() {
                     )
                 }
 
-                if (notificationManager.notifications.isEmpty()) {
+
+
+                // App filter chips
+                  FilterApps()
+
+                val notifs = notificationManager.notifications.filter { selectedPackage==null || it.packageName == selectedPackage }
+                if (notifs.isEmpty()) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -138,8 +165,11 @@ fun MainApp() {
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        item{
+
+                        }
                         items(
-                            items = notificationManager.notifications,
+                            items = notifs,
                             key = { it.timestamp },
                             itemContent = { notification ->
                                     NotificationCard(
@@ -159,7 +189,11 @@ fun MainApp() {
             }
         }
     }
+
+
 }
+
+
 
 private fun getDeviceIp(): String = NetworkInterface.getNetworkInterfaces()
     .toList()

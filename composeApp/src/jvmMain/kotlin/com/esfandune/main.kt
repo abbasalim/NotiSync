@@ -2,6 +2,7 @@ package com.esfandune
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.esfandune.ui.MainApp
 
 fun main() = application {
     Window(
