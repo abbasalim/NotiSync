@@ -43,10 +43,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.esfandune.screen.NotificationViewModel
 import com.esfandune.screen.NotificationForwarderScreen
+import com.esfandune.utils.WiFiStateManager
 
 class MainActivity : ComponentActivity() {
+    private lateinit var wifiStateManager: WiFiStateManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        wifiStateManager = WiFiStateManager(applicationContext)
+        
         setContent {
             MaterialTheme {
                 Surface(

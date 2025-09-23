@@ -1,24 +1,30 @@
 package com.esfandune.screen.component
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Wifi
+import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.esfandune.utils.rememberWiFiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainTopBar( onSettingsClick: () -> Unit) {
+fun MainTopBar(onSettingsClick: () -> Unit) {
+    val isWifiConnected = rememberWiFiState().value
+
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -26,22 +32,37 @@ fun MainTopBar( onSettingsClick: () -> Unit) {
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
             )
         },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
-            titleContentColor = MaterialTheme.colorScheme.primary,
-            navigationIconContentColor = MaterialTheme.colorScheme.primary
-        ),
         actions = {
+            // WiFi status indicator
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                if (isWifiConnected) {
+                    Icon(
+                        imageVector = Icons.Outlined.Wifi,
+                        contentDescription = "Connected ",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.WifiOff,
+                        contentDescription = "WiFi Disconnected",
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+
+                }
+            }
             IconButton(
                 onClick = onSettingsClick,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.size(48.dp)
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Settings,
                     contentDescription = "Server Settings"
                 )
             }
-
         }
     )
 }
