@@ -166,4 +166,8 @@ class NotificationViewModel : ViewModel() {
             }
         }
     }
+
+    fun  showMessage(msg: String){
+        _uiState.value = _uiState.value.copy(statusMessage = msg)
+    }
 }
