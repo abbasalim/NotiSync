@@ -62,7 +62,7 @@ import com.esfandune.screen.component.ClipboardContentDialog
 import com.esfandune.screen.component.MainTopBar
 import com.esfandune.ui.ButtonCard
 import com.esfandune.ui.StatItem
-import com.esfandune.utils.rememberWiFiState
+import com.esfandune.util.rememberWiFiState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

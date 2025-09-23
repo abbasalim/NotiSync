@@ -18,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.esfandune.utils.rememberWiFiState
+import com.esfandune.util.rememberWiFiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,4 +1,4 @@
-package com.esfandune.utils
+package com.esfandune.util
 
 import android.content.Context
 import android.content.IntentFilter
@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.esfandune.receiver.WiFiStateReceiver
 
 class WiFiStateManager(private val context: Context) {
@@ -73,7 +74,7 @@ class WiFiStateManager(private val context: Context) {
     fun observeWiFiState(): State<Boolean> {
         val context = LocalContext.current
         val state = remember { mutableStateOf(false) }
-        val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+        val lifecycleOwner = LocalLifecycleOwner.current
 
         // Initial update
         LaunchedEffect(Unit) {
