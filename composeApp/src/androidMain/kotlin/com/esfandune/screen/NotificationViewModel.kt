@@ -4,12 +4,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.provider.Settings
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esfandune.model.ClipboardData
@@ -21,14 +18,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
 
 class NotificationViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private var settingsManager: SettingsManager? = null
+    var receivingClipboard = mutableStateOf(false)
     val lastClipboardData = mutableStateOf<ClipboardData?>(null)
 
     fun initializeWithContext(context: Context) {
@@ -119,11 +115,17 @@ class NotificationViewModel : ViewModel() {
     }
 
     fun getClipboard(context: Context) {
+        if (receivingClipboard.value){
+            _uiState.value = uiState.value.copy(statusMessage = "در حال دریافت کلیپ بورد...")
+            return
+        }
         settingsManager?.getSettings()?.let { settings ->
             val notificationService =
                 NotificationService(serverIp = settings.serverIp, serverPort = settings.serverPort)
             viewModelScope.launch {
+                receivingClipboard.value = true
                 val clipboardData = notificationService.getClipboard()
+                receivingClipboard.value = false
                 ///
                 when {
                     !clipboardData.text.isNullOrEmpty() -> {
@@ -132,6 +134,7 @@ class NotificationViewModel : ViewModel() {
                         val clip = ClipData.newPlainText("text_content", clipboardData.text)
                         clipboardManager.setPrimaryClip(clip)
                         Log.d("clipboard", "Copied text to clipboard: ${clipboardData.text.take(50)}...")
+                        _uiState.value = _uiState.value.copy(statusMessage = "${clipboardData.text.take(50)}..." )
                     }
                     !clipboardData.imageData.isNullOrEmpty() -> {
                         lastClipboardData.value = clipboardData
@@ -160,15 +163,6 @@ class NotificationViewModel : ViewModel() {
                         Log.d("clipboard", "No content in clipboard")
                     }
                 }
-
-
-
-
-
-                ///
-                _uiState.value = _uiState.value.copy(
-                    statusMessage = clipboardData.text ?:clipboardData.fileName ?: clipboardData.error ?: "unknown error"
-                )
             }
         }
     }

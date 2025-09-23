@@ -41,6 +41,7 @@ fun MainTopBar( onSettingsClick: () -> Unit) {
                     contentDescription = "Server Settings"
                 )
             }
+
         }
     )
 }

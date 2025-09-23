@@ -32,6 +32,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -144,128 +145,104 @@ fun ClipboardContentDialog(
             }
         },
         confirmButton = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
                 // Copy Button
-                Button(
-                    onClick = {
-                        (context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)?.let { clipboard ->
-                            when {
-                                hasImage -> {
-                                    val imageBytes = Base64.decode(clipboardData.imageData, Base64.DEFAULT)
-                                    val tempFile = File(context.cacheDir, "clipped_image.png")
-                                    FileOutputStream(tempFile).use { it.write(imageBytes) }
-                                    val contentUri = FileProvider.getUriForFile(
-                                        context,
-                                        "${context.packageName}.fileprovider",
-                                        tempFile
-                                    )
-                                    val clip = ClipData.newUri(
-                                        context.contentResolver,
-                                        "Image",
-                                        contentUri
-                                    )
-                                    clipboard.setPrimaryClip(clip)
-                                }
-                                hasFile -> {
-                                    val fileBytes = Base64.decode(clipboardData.fileData, Base64.DEFAULT)
-                                    val extension = clipboardData.fileName?.substringAfterLast('.', "bin") ?: "bin"
-                                    val tempFile = File(context.cacheDir, "clipped_file.$extension")
-                                    FileOutputStream(tempFile).use { it.write(fileBytes) }
-                                    val contentUri = FileProvider.getUriForFile(
-                                        context,
-                                        "${context.packageName}.fileprovider",
-                                        tempFile
-                                    )
-                                    val clip = ClipData.newUri(
-                                        context.contentResolver,
-                                        "File",
-                                        contentUri
-                                    )
-                                    clipboard.setPrimaryClip(clip)
-                                }
-                                else -> {
-                                    val clip = ClipData.newPlainText("Text", clipboardData.text ?: "")
-                                    clipboard.setPrimaryClip(clip)
-                                }
-                            }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        Icons.Default.ContentCopy,
-                        contentDescription = "کپی",
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
-                    )
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    Text("کپی")
-                }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                // Share Button
-                Button(
-                    onClick = {
-                        val shareIntent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            if (hasImage) {
-                                // For image sharing
-                                val imageBytes =
-                                    Base64.decode(clipboardData.imageData, Base64.DEFAULT)
-                                val tempFile = File(context.cacheDir, "shared_image.png")
+            FilledTonalButton(
+                onClick = {
+                    (context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)?.let { clipboard ->
+                        when {
+                            hasImage -> {
+                                val imageBytes = Base64.decode(clipboardData.imageData, Base64.DEFAULT)
+                                val tempFile = File(context.cacheDir, "clipped_image.png")
                                 FileOutputStream(tempFile).use { it.write(imageBytes) }
                                 val contentUri = FileProvider.getUriForFile(
                                     context,
                                     "${context.packageName}.fileprovider",
                                     tempFile
                                 )
-                                putExtra(Intent.EXTRA_STREAM, contentUri)
-                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                type = "image/*"
-                            } else if (hasFile) {
-
-                            } else {
-                                // For text sharing
-                                putExtra(Intent.EXTRA_TEXT, clipboardData.text)
-                                type = "text/plain"
+                                val clip = ClipData.newUri(
+                                    context.contentResolver,
+                                    "Image",
+                                    contentUri
+                                )
+                                clipboard.setPrimaryClip(clip)
+                            }
+                            hasFile -> {
+                                val fileBytes = Base64.decode(clipboardData.fileData, Base64.DEFAULT)
+                                val extension = clipboardData.fileName?.substringAfterLast('.', "bin") ?: "bin"
+                                val tempFile = File(context.cacheDir, "clipped_file.$extension")
+                                FileOutputStream(tempFile).use { it.write(fileBytes) }
+                                val contentUri = FileProvider.getUriForFile(
+                                    context,
+                                    "${context.packageName}.fileprovider",
+                                    tempFile
+                                )
+                                val clip = ClipData.newUri(
+                                    context.contentResolver,
+                                    "File",
+                                    contentUri
+                                )
+                                clipboard.setPrimaryClip(clip)
+                            }
+                            else -> {
+                                val clip = ClipData.newPlainText("Text", clipboardData.text ?: "")
+                                clipboard.setPrimaryClip(clip)
                             }
                         }
-                        context.startActivity(
-                            Intent.createChooser(
-                                shareIntent,
-                                "اشتراک‌گذاری با..."
-                            )
-                        )
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        Icons.Default.Share,
-                        contentDescription = "اشتراک‌گذاری",
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
-                    )
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    Text("اشتراک‌گذاری")
-                }
+                    }
+                },
+            ) {
+                Icon(
+                    Icons.Default.ContentCopy,
+                    contentDescription = "کپی",
+                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                )
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text("کپی")
             }
+
         },
         dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth()
+            Button(
+                onClick = {
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        if (hasImage) {
+                            // For image sharing
+                            val imageBytes =
+                                Base64.decode(clipboardData.imageData, Base64.DEFAULT)
+                            val tempFile = File(context.cacheDir, "shared_image.png")
+                            FileOutputStream(tempFile).use { it.write(imageBytes) }
+                            val contentUri = FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.fileprovider",
+                                tempFile
+                            )
+                            putExtra(Intent.EXTRA_STREAM, contentUri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            type = "image/*"
+                        } else if (hasFile) {
+
+                        } else {
+                            // For text sharing
+                            putExtra(Intent.EXTRA_TEXT, clipboardData.text)
+                            type = "text/plain"
+                        }
+                    }
+                    context.startActivity(
+                        Intent.createChooser(
+                            shareIntent,
+                            "اشتراک‌گذاری با..."
+                        )
+                    )
+                },
             ) {
-                Text("انصراف")
+                Icon(
+                    Icons.Default.Share,
+                    contentDescription = "اشتراک‌گذاری",
+                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                )
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text("اشتراک‌گذاری")
             }
         },
         modifier = Modifier.padding(16.dp)

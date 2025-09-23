@@ -1,8 +1,10 @@
 package com.esfandune.screen
 
 
+import android.content.Context
 import android.content.Intent
 import android.provider.Settings
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +30,7 @@ import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -105,16 +108,7 @@ fun NotificationForwarderScreen() {
     Scaffold(
         topBar = { MainTopBar { showServerSettings = !showServerSettings } },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    viewModel.getClipboard(context)
-                },
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.ContentPaste,
-                    contentDescription = "get Server Clipboard"
-                )
-            }
+            FAB(viewModel)
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
@@ -344,6 +338,29 @@ fun NotificationForwarderScreen() {
             clipboardData = data,
             onDismiss = { viewModel.lastClipboardData.value = null },
         )
+    }
+}
+
+@Composable
+private fun FAB(
+    viewModel: NotificationViewModel
+) {
+    val context = LocalContext.current
+    FloatingActionButton(
+        onClick = {
+            viewModel.getClipboard(context)
+        },
+    ) {
+        AnimatedContent(viewModel.receivingClipboard.value) {
+            if (it) {
+                CircularProgressIndicator()
+            } else {
+                Icon(
+                    imageVector = Icons.Outlined.ContentPaste,
+                    contentDescription = "get Server Clipboard"
+                )
+            }
+        }
     }
 }
 
