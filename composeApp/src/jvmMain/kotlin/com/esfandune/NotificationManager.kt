@@ -5,7 +5,6 @@ import com.esfandune.model.NotificationData
 import com.esfandune.util.packageToEmoji
 import java.awt.SystemTray
 import java.awt.TrayIcon
-import java.io.File
 import javax.imageio.ImageIO
 
 class NotificationManager {
@@ -29,7 +28,7 @@ class NotificationManager {
                 } else {
                     throw Exception("Icon not found in resources")
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Create a simple colored square if no icon is found
                 val bufferedImage =
                     java.awt.image.BufferedImage(16, 16, java.awt.image.BufferedImage.TYPE_INT_RGB)
