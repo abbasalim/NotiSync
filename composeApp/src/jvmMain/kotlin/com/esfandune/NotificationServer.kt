@@ -20,6 +20,14 @@ import io.ktor.server.routing.routing
 import java.awt.Toolkit
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.UnsupportedFlavorException
+import java.io.ByteArrayOutputStream
+import java.util.Base64
+import javax.imageio.ImageIO
+import java.io.File
+import java.nio.file.Files
+import java.awt.Image
+import java.awt.datatransfer.Transferable
+import java.awt.image.BufferedImage
 
 class NotificationServer(private val notificationManager: NotificationManager) {
     private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? =
@@ -60,16 +68,73 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                 get("/clipboard") {
                     try {
                         val clipboard = Toolkit.getDefaultToolkit().systemClipboard
-                        val contents = clipboard.getData(DataFlavor.stringFlavor) as? String
-                        if (!contents.isNullOrEmpty()) {
-                            call.respond(ClipboardData(contents, null))
-                        } else {
-                            call.respond(ClipboardData(null,"Clipboard is empty or doesn't contain text"))
+                        val transferable = clipboard.getContents(null)
+                        
+                        when {
+                            transferable.isDataFlavorSupported(DataFlavor.stringFlavor) -> {
+                                val text = transferable.getTransferData(DataFlavor.stringFlavor) as? String
+                                if (!text.isNullOrEmpty()) {
+                                    call.respond(ClipboardData.createText(text))
+                                } else {
+                                    call.respond(ClipboardData.createError("Clipboard is empty or doesn't contain text"))
+                                }
+                            }
+                            transferable.isDataFlavorSupported(DataFlavor.imageFlavor) -> {
+                                val image = transferable.getTransferData(DataFlavor.imageFlavor) as? Image
+                                if (image != null) {
+                                    val bufferedImage = if (image is BufferedImage) {
+                                        image
+                                    } else {
+                                        val bufferedImage = BufferedImage(
+                                            image.getWidth(null), 
+                                            image.getHeight(null), 
+                                            BufferedImage.TYPE_INT_ARGB
+                                        )
+                                        val g = bufferedImage.createGraphics()
+                                        g.drawImage(image, 0, 0, null)
+                                        g.dispose()
+                                        bufferedImage
+                                    }
+                                    
+                                    val outputStream = ByteArrayOutputStream()
+                                    ImageIO.write(bufferedImage, "png", outputStream)
+                                    val imageBytes = outputStream.toByteArray()
+                                    val base64Image = Base64.getEncoder().encodeToString(imageBytes)
+                                    
+                                    call.respond(ClipboardData.createImage(base64Image, "image/png"))
+                                } else {
+                                    call.respond(ClipboardData.createError("Failed to get image from clipboard"))
+                                }
+                            }
+                            transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor) -> {
+                                val fileList = transferable.getTransferData(DataFlavor.javaFileListFlavor) as? List<*>
+                                if (!fileList.isNullOrEmpty()) {
+                                    val file = fileList.first() as? File
+                                    if (file != null) {
+                                        val fileBytes = Files.readAllBytes(file.toPath())
+                                        val base64File = Base64.getEncoder().encodeToString(fileBytes)
+                                        val mimeType = Files.probeContentType(file.toPath()) ?: "application/octet-stream"
+                                        
+                                        call.respond(
+                                            ClipboardData.createFile(
+                                                fileData = base64File,
+                                                fileName = file.name,
+                                                mimeType = mimeType
+                                            )
+                                        )
+                                    } else {
+                                        call.respond(ClipboardData.createError("Failed to process file from clipboard"))
+                                    }
+                                } else {
+                                    call.respond(ClipboardData.createError("No files found in clipboard"))
+                                }
+                            }
+                            else -> {
+                                call.respond(ClipboardData.createError("Unsupported clipboard content type"))
+                            }
                         }
-                    } catch (e: UnsupportedFlavorException) {
-                        call.respond(ClipboardData(null, "Clipboard content is not text"))
                     } catch (e: Exception) {
-                        call.respond(ClipboardData(null, "Failed to access clipboard"))
+                        call.respond(ClipboardData.createError("Failed to access clipboard: ${e.message}"))
                     }
                 }
             }

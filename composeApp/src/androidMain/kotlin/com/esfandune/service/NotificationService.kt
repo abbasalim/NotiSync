@@ -25,6 +25,18 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import androidx.core.net.toUri
+import java.io.File
+import java.io.FileOutputStream
+import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.core.content.FileProvider
+import androidx.core.content.ContextCompat.startActivity
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.Build
+import androidx.compose.ui.platform.LocalContext
+import java.io.ByteArrayInputStream
 
 class NotificationService( serverIp: String,  serverPort: Int) {
     val baseUrl = "http://$serverIp:$serverPort"
@@ -61,7 +73,7 @@ class NotificationService( serverIp: String,  serverPort: Int) {
         }
     }
 
-    suspend fun getClipboard(context: Context): ClipboardData {
+    suspend fun getClipboard(): ClipboardData {
         try {
             val clipboardData = client.get("$baseUrl/clipboard") {
                 timeout {
@@ -70,24 +82,13 @@ class NotificationService( serverIp: String,  serverPort: Int) {
                 }
             }.body<ClipboardData>()
             
-            Log.d("clipboard", "Response: $clipboardData")
-
-            clipboardData.content?.let { content ->
-                // Copy to clipboard
-                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("clipboard_content", content)
-                clipboard.setPrimaryClip(clip)
-                Log.d("clipboard", "Copied to clipboard: $content")
-            } ?: {
-                val errorMessage = clipboardData.error ?: "No content in clipboard"
-                Log.d("clipboard", errorMessage)
-            }
+            Log.d("clipboard", "Received clipboard data: $clipboardData")
             return clipboardData
 
         } catch (e: Exception) {
             val error = "Error: ${e.message ?: "Unknown error"}"
             Log.e("clipboard", error, e)
-            return ClipboardData(null, error)
+            return ClipboardData(error = error)
         }
     }
 }
