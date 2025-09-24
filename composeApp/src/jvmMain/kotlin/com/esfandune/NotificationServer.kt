@@ -71,7 +71,62 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                         val transferable = clipboard.getContents(null)
                         
                         when {
-                            //ترتبیبشون مهمه! اول عکس بعد فایل بعد متن
+                            // First check for file list
+                            transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor) -> {
+                                val fileList = transferable.getTransferData(DataFlavor.javaFileListFlavor) as? List<*>
+                                if (!fileList.isNullOrEmpty()) {
+                                    val file = fileList.first() as? File
+                                    if (file != null) {
+                                        // Check if the file is an image
+                                        val mimeType = Files.probeContentType(file.toPath())?.lowercase()
+                                        val isImageFile = mimeType?.startsWith("image/") == true
+                                        
+                                        if (isImageFile) {
+                                            try {
+                                                // Try to read the image file
+                                                val image = ImageIO.read(file)
+                                                if (image != null) {
+                                                    val outputStream = ByteArrayOutputStream()
+                                                    val formatName = when (mimeType) {
+                                                        "image/jpeg" -> "jpg"
+                                                        "image/png" -> "png"
+                                                        "image/gif" -> "gif"
+                                                        "image/bmp" -> "bmp"
+                                                        else -> "png" // default to png if unknown
+                                                    }
+                                                    ImageIO.write(image, formatName, outputStream)
+                                                    val imageBytes = outputStream.toByteArray()
+                                                    val base64Image = Base64.getEncoder().encodeToString(imageBytes)
+                                                    
+                                                    call.respond(ClipboardData.createImage(base64Image, mimeType ?: "image/png"))
+                                                    return@get
+                                                }
+                                            } catch (e: Exception) {
+                                                // If we can't process as image, fall back to regular file handling
+                                                println("Failed to process as image, falling back to file: ${e.message}")
+                                            }
+                                        }
+                                        
+                                        // If not an image or image processing failed, handle as regular file
+                                        val fileBytes = Files.readAllBytes(file.toPath())
+                                        val base64File = Base64.getEncoder().encodeToString(fileBytes)
+                                        val resolvedMimeType = mimeType ?: "application/octet-stream"
+
+                                        call.respond(
+                                            ClipboardData.createFile(
+                                                fileData = base64File,
+                                                fileName = file.name,
+                                                mimeType = resolvedMimeType
+                                            )
+                                        )
+                                    } else {
+                                        call.respond(ClipboardData.createError("Failed to process file from clipboard"))
+                                    }
+                                } else {
+                                    call.respond(ClipboardData.createError("No files found in clipboard"))
+                                }
+                            }
+                            // Then check for image data
                             transferable.isDataFlavorSupported(DataFlavor.imageFlavor) -> {
                                 val image = transferable.getTransferData(DataFlavor.imageFlavor) as? Image
                                 if (image != null) {
@@ -99,29 +154,7 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                                     call.respond(ClipboardData.createError("Failed to get image from clipboard"))
                                 }
                             }
-                            transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor) -> {
-                                val fileList = transferable.getTransferData(DataFlavor.javaFileListFlavor) as? List<*>
-                                if (!fileList.isNullOrEmpty()) {
-                                    val file = fileList.first() as? File
-                                    if (file != null) {
-                                        val fileBytes = Files.readAllBytes(file.toPath())
-                                        val base64File = Base64.getEncoder().encodeToString(fileBytes)
-                                        val mimeType = Files.probeContentType(file.toPath()) ?: "application/octet-stream"
-
-                                        call.respond(
-                                            ClipboardData.createFile(
-                                                fileData = base64File,
-                                                fileName = file.name,
-                                                mimeType = mimeType
-                                            )
-                                        )
-                                    } else {
-                                        call.respond(ClipboardData.createError("Failed to process file from clipboard"))
-                                    }
-                                } else {
-                                    call.respond(ClipboardData.createError("No files found in clipboard"))
-                                }
-                            }
+                            // Finally check for text
                             transferable.isDataFlavorSupported(DataFlavor.stringFlavor) -> {
                                 val text = transferable.getTransferData(DataFlavor.stringFlavor) as? String
                                 if (!text.isNullOrEmpty()) {
