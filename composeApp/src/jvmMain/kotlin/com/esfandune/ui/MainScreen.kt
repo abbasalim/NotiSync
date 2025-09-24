@@ -22,6 +22,7 @@ import com.esfandune.util.packageToEmoji
 import com.esfandune.NotificationManager
 import com.esfandune.NotificationServer
 import com.esfandune.model.NotificationData
+import com.esfandune.ui.theme.AppTheme
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import java.net.Inet4Address
@@ -81,7 +82,7 @@ fun MainApp() {
 
 
 
-    MaterialTheme() {
+    AppTheme {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -127,14 +128,10 @@ fun MainApp() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
                 ) {
                     Text(
                         text = "http://${getDeviceIp()}:8080",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.padding(16.dp)
                     )
                 }

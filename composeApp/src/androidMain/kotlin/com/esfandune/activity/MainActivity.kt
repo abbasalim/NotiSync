@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.esfandune.screen.NotificationForwarderScreen
+import com.esfandune.ui.theme.AppTheme
 import com.esfandune.util.WiFiStateManager
 
 class MainActivity : ComponentActivity() {
@@ -17,9 +18,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         wifiStateManager = WiFiStateManager(applicationContext)
-        
+
         setContent {
-            MaterialTheme {
+            AppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
