@@ -25,7 +25,7 @@ import java.util.Locale
 @Composable
 fun NotificationCard(
     modifier: Modifier = Modifier,
-    notification: NotificationData,
+    notifications: List<NotificationData>,
     onMarkAsRead: () -> Unit
 ) {
     Card(
@@ -40,23 +40,28 @@ fun NotificationCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
-            Column(modifier = Modifier.weight(1f).padding(6.dp)) {
-                Text(
-                    text = notification.title,
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier
-                )
-                Text(
-                    text = notification.message,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
-                )
-                Text(
-                    text = java.text.SimpleDateFormat("HH:mm", Locale.US)
-                        .format(notification.timestamp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
+            Column(
+                modifier = Modifier.weight(1f).padding(6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                notifications.forEach { notification ->
+                    Text(
+                        text = notification.title,
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier
+                    )
+                    Text(
+                        text = notification.message,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                    )
+                    Text(
+                        text = java.text.SimpleDateFormat("HH:mm", Locale.US)
+                            .format(notification.timestamp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
             }
             IconButton(
                 onClick = onMarkAsRead,

@@ -63,13 +63,13 @@ fun MainApp() {
                 label = { Text("همه") },
                 modifier = Modifier.padding(end = 4.dp)
             )
-            notificationManager.notifications.distinctBy { it.packageName } .forEach { app ->
+            notificationManager.notifications.distinctBy { it.first().packageName } .forEach { app ->
                 FilterChip(
-                    selected = selectedPackage == app.packageName,
-                    onClick = { selectedPackage = app.packageName },
+                    selected = selectedPackage == app.first().packageName,
+                    onClick = { selectedPackage = app.first().packageName },
                     label = {
                         Text(
-                            text = "${app.packageName.packageToEmoji()} ${app.appName}",
+                            text = "${app.first().packageName.packageToEmoji()} ${app.first().appName}",
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -141,7 +141,7 @@ fun MainApp() {
                 // App filter chips
                   FilterApps()
 
-                val notifs = notificationManager.notifications.filter { selectedPackage==null || it.packageName == selectedPackage }
+                val notifs = notificationManager.notifications.filter { selectedPackage==null || it.first().packageName == selectedPackage }
                 if (notifs.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -167,10 +167,9 @@ fun MainApp() {
                         }
                         items(
                             items = notifs,
-                            key = { it.timestamp },
                             itemContent = { notification ->
                                     NotificationCard(
-                                        notification = notification,
+                                        notifications = notification,
                                         modifier = Modifier.animateItem(),
                                         onMarkAsRead = {
                                             coroutineScope.launch {
@@ -199,8 +198,8 @@ private fun getDeviceIp(): String = NetworkInterface.getNetworkInterfaces()
     ?.firstOrNull { !it.isLoopbackAddress && it is Inet4Address }?.hostAddress ?: "Not Found Ip"
 
 
-suspend fun sendReadConfirmation(notification: NotificationData) {
+suspend fun sendReadConfirmation(notification: List<NotificationData>) {
     // This would typically send an HTTP request back to your Android app
     // You can implement this based on your Android app's server setup
-    println("Marking as read: ${notification.title}")
+    println("Marking as read: ${notification.first().appName}")
 }

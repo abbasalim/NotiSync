@@ -8,8 +8,8 @@ import java.awt.TrayIcon
 import javax.imageio.ImageIO
 
 class NotificationManager {
-    private val _notifications = mutableStateListOf<NotificationData>()
-    val notifications: List<NotificationData> = _notifications
+    private val _notifications = mutableStateListOf<List<NotificationData>>()
+    val notifications: List<List<NotificationData>> = _notifications
     private var trayIcon: TrayIcon? = null
 
     init {
@@ -55,22 +55,24 @@ class NotificationManager {
     }
 
     fun addNotification(notification: NotificationData) {
-        if (_notifications.isNotEmpty() && _notifications.first().packageName == notification.packageName) {
+        if (_notifications.isNotEmpty() && _notifications.first()
+                .first().packageName == notification.packageName
+        ) {
             val existingNotification = _notifications.first()
-            val combinedMessage = "${existingNotification.message}\n${notification.message}"
-            
-            // Remove the old notification
+//            val combinedMessage = "${notification.message}\n${existingNotification.message}"
+            val addedList = existingNotification.toMutableList()
+            addedList.add(0, notification)
             _notifications.removeFirst()
-            
-            // Add the new combined notification
-            val updatedNotification = notification.copy(
-                message = combinedMessage,
-                timestamp = notification.timestamp
-            )
-            _notifications.add(0, updatedNotification)
-            showSystemNotification(updatedNotification)
+            _notifications.add(0, addedList.toList())
+
+//            val updatedNotification = notification.copy(
+//                message = combinedMessage,
+//                timestamp = notification.timestamp
+//            )
+//            _notifications.add(0, updatedNotification)
+            showSystemNotification(notification)
         } else {
-            _notifications.add(0, notification)
+            _notifications.add(0, listOf(notification))
             showSystemNotification(notification)
         }
     }
@@ -84,6 +86,18 @@ class NotificationManager {
     }
 
     fun markAsRead(notification: NotificationData): Boolean {
+        ///تست نشده
+        val notifsGroupIndex = _notifications.indexOfFirst { it.first().packageName == notification.packageName }
+        if (notifsGroupIndex>=0) {
+            val notifsGroup = _notifications[notifsGroupIndex].toMutableList()
+            notifsGroup.remove(notification)
+              _notifications.removeAt(notifsGroupIndex)
+            _notifications.add(notifsGroupIndex, notifsGroup)
+            return true
+        }
+         return false
+    }
+    fun markAsRead(notification: List<NotificationData>): Boolean {
         return _notifications.remove(notification)
     }
 }
