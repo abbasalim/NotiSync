@@ -106,6 +106,18 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.esfandune"
             packageVersion = "1.0.0"
+
+            modules("java.instrument", "jdk.unsupported")
+            windows {
+                menuGroup = "NotiSync"
+                iconFile.set(project.file("src/jvmMain/resources/icon_dark.png"))
+            }
+            macOS {
+                iconFile.set(project.file("src/jvmMain/resources/icon_dark.png"))
+            }
+            linux {
+                iconFile.set(project.file("src/jvmMain/resources/icon_dark.png"))
+            }
         }
     }
 }
