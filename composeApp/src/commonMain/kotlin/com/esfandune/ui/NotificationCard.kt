@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.esfandune.model.NotificationData
+import com.esfandune.util.packageToEmoji
 import java.util.Locale
 
 
@@ -44,23 +46,39 @@ fun NotificationCard(
                 modifier = Modifier.weight(1f).padding(6.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
+                Text(
+                    text = "${notifications.firstOrNull()?.packageName?.packageToEmoji()} ${notifications.firstOrNull()?.appName?:""}",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                )
                 notifications.forEach { notification ->
-                    Text(
-                        text = notification.title,
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier
-                    )
-                    Text(
-                        text = notification.message,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
-                    )
-                    Text(
-                        text = java.text.SimpleDateFormat("HH:mm", Locale.US)
-                            .format(notification.timestamp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(6.dp).fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(0.dp)
+                        ) {
+
+                            Text(
+                                text = notification.title,
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier
+                            )
+                            Text(
+                                text = notification.message,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                            )
+                            Text(
+                                text = java.text.SimpleDateFormat("HH:mm", Locale.US)
+                                    .format(notification.timestamp),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+                        }
+                    }
                 }
             }
             IconButton(

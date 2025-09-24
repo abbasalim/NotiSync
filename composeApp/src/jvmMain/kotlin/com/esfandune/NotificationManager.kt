@@ -59,17 +59,11 @@ class NotificationManager {
                 .first().packageName == notification.packageName
         ) {
             val existingNotification = _notifications.first()
-//            val combinedMessage = "${notification.message}\n${existingNotification.message}"
             val addedList = existingNotification.toMutableList()
             addedList.add(0, notification)
             _notifications.removeFirst()
             _notifications.add(0, addedList.toList())
 
-//            val updatedNotification = notification.copy(
-//                message = combinedMessage,
-//                timestamp = notification.timestamp
-//            )
-//            _notifications.add(0, updatedNotification)
             showSystemNotification(notification)
         } else {
             _notifications.add(0, listOf(notification))
