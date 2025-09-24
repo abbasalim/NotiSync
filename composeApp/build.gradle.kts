@@ -110,10 +110,10 @@ compose.desktop {
             modules("java.instrument", "jdk.unsupported")
             windows {
                 menuGroup = "NotiSync"
-                iconFile.set(project.file("src/jvmMain/resources/icon_dark.png"))
+                iconFile.set(project.file("src/jvmMain/resources/icon_dark.ico"))
             }
             macOS {
-                iconFile.set(project.file("src/jvmMain/resources/icon_dark.png"))
+                iconFile.set(project.file("src/jvmMain/resources/icon_dark.icns"))
             }
             linux {
                 iconFile.set(project.file("src/jvmMain/resources/icon_dark.png"))
