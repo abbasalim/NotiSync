@@ -30,7 +30,7 @@ class NotificationViewModel : ViewModel() {
     fun initializeWithContext(context: Context) {
         if (settingsManager == null) {
             settingsManager = SettingsManager(context)
-            checkNotificationPermission(context)
+//            checkNotificationPermission(context)
             loadSettingsFromManager()
         }
     }
@@ -91,17 +91,7 @@ class NotificationViewModel : ViewModel() {
         }
     }
 
-    private fun checkNotificationPermission(context: Context) {
-        val enabledListeners = Settings.Secure.getString(
-            context.contentResolver,
-            "enabled_notification_listeners"
-        )
 
-        val myListener = ComponentName(context, NotificationListenerService::class.java)
-        val hasPermission = enabledListeners?.contains(myListener.flattenToString()) == true
-
-        _uiState.value = _uiState.value.copy(hasNotificationPermission = hasPermission)
-    }
 
 
     fun refreshStats() { // Renamed from refreshUiState to be more specific, and now reloads all settings

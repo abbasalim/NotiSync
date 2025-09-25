@@ -1,8 +1,6 @@
 package com.esfandune.screen
 
 
-import android.content.Intent
-import android.provider.Settings
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.SettingsInputComponent
@@ -79,9 +76,13 @@ fun NotificationForwarderScreen() {
     var showAppSelectorDialog by remember { mutableStateOf(false) }
     var showServerSettings by remember { mutableStateOf(false) }
     var tempSelectedExcludedPackages by remember { mutableStateOf<Set<String>>(emptySet()) }
-
-    LaunchedEffect(Unit) {
-        viewModel.initializeWithContext(context)
+    var showPermissionHandler by remember { mutableStateOf(true) }
+    if (showPermissionHandler) {
+        PermissionHandlerScreen {
+            viewModel.initializeWithContext(context)
+            showPermissionHandler = false
+        }
+        return
     }
 
     LaunchedEffect(uiState.serverIp, uiState.serverPort) {
@@ -124,20 +125,20 @@ fun NotificationForwarderScreen() {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Permission Status Card
-                ButtonCard(
-                    modifier = Modifier.weight(1f),
-                    title = "وضعیت دسترسی",
-                    status = if (uiState.hasNotificationPermission) "فعال" else "غیرفعال",
-                    icon = if (uiState.hasNotificationPermission) Icons.Default.Notifications
-                    else Icons.Outlined.NotificationsOff,
-                    isActive = uiState.hasNotificationPermission,
-                    onClick = {
-                        if (!uiState.hasNotificationPermission) {
-                            val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                            context.startActivity(intent)
-                        }
-                    }
-                )
+//          todo change       ButtonCard(
+//                    modifier = Modifier.weight(1f),
+//                    title = "وضعیت دسترسی",
+//                    status = if (uiState.hasNotificationPermission) "فعال" else "غیرفعال",
+//                    icon = if (uiState.hasNotificationPermission) Icons.Default.Notifications
+//                    else Icons.Outlined.NotificationsOff,
+//                    isActive = uiState.hasNotificationPermission,
+//                    onClick = {
+//                        if (!uiState.hasNotificationPermission) {
+//                            val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+//                            context.startActivity(intent)
+//                        }
+//                    }
+//                )
 
                 // Service Status Card
                 ButtonCard(
