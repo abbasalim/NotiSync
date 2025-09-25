@@ -157,9 +157,11 @@ class NotificationViewModel : ViewModel() {
 //                        }
                     }
                     !clipboardData.error.isNullOrEmpty() -> {
+                        _uiState.value = _uiState.value.copy(statusMessage = " : ${clipboardData.error}")
                         Log.d("clipboard", "Server returned error: ${clipboardData.error}")
                     }
                     else -> {
+                        _uiState.value = _uiState.value.copy(statusMessage = " محتوی در کلیپ برد نیست!")
                         Log.d("clipboard", "No content in clipboard")
                     }
                 }
