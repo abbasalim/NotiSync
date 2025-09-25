@@ -1,11 +1,11 @@
 package com.esfandune.screen
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +25,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,10 +36,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -48,9 +47,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.esfandune.model.PermissionItem
 import com.esfandune.util.checkNotificationPermission
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +60,7 @@ fun PermissionHandlerScreen(
     onAllPermissionsGranted: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val permissionStates = remember { mutableStateMapOf<String, Boolean>() }
     val requiredPermissions = remember {
         mutableListOf<PermissionItem>()
@@ -83,6 +85,17 @@ fun PermissionHandlerScreen(
     }
 
 
+    fun checkAllPermissionsGranted(): Boolean {
+        requiredPermissions.forEach { permission ->
+            val isGranted = ContextCompat.checkSelfPermission(
+                context,
+                permission.permission
+            ) == PackageManager.PERMISSION_GRANTED
+            permissionStates[permission.permission] = isGranted
+        }
+        return permissionStates.all { it.value } && checkNotificationPermission(context)
+    }
+
     // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -91,25 +104,26 @@ fun PermissionHandlerScreen(
             permissionStates[permission] = isGranted
         }
         // If all permissions are granted, navigate away
-        if (checkAllPermissionsGranted(permissionStates, context)) {
+        if (checkAllPermissionsGranted()) {
             onAllPermissionsGranted()
         }
     }
+    DisposableEffect(lifecycleOwner) {
+        val observer = object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                if (checkAllPermissionsGranted())
+                    onAllPermissionsGranted()
+                Log.d("Lifecycle", "Screen Resumed")
+            }
 
-    // Check current permission status
-    LaunchedEffect(Unit) {
-        requiredPermissions.forEach { permission ->
-            val isGranted = ContextCompat.checkSelfPermission(
-                context,
-                permission.permission
-            ) == PackageManager.PERMISSION_GRANTED
-            permissionStates[permission.permission] = isGranted
+            override fun onPause(owner: LifecycleOwner) {
+            }
         }
-        if (checkAllPermissionsGranted(permissionStates, context)) {
-            onAllPermissionsGranted()
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
-
 
 
     // UI
@@ -129,7 +143,7 @@ fun PermissionHandlerScreen(
             )
         },
         bottomBar = {
-            if (checkAllPermissionsGranted(permissionStates,context).not()) {
+            if (checkAllPermissionsGranted().not()) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     color = MaterialTheme.colorScheme.surface,
@@ -141,7 +155,8 @@ fun PermissionHandlerScreen(
                         Button(
                             onClick = {
                                 if (checkNotificationPermission(context).not()) {
-                                    val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                                    val intent =
+                                        Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
                                     context.startActivity(intent)
                                 }
                                 val permissionsToRequest = requiredPermissions
@@ -198,7 +213,7 @@ fun PermissionHandlerScreen(
 
 
             item {
-                if (checkAllPermissionsGranted(permissionStates,context)) {
+                if (checkAllPermissionsGranted()) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -221,12 +236,6 @@ fun PermissionHandlerScreen(
 
 
 }
-
-
-private fun checkAllPermissionsGranted(
-    permissionStates: SnapshotStateMap<String, Boolean>,
-    context: Context
-): Boolean = permissionStates.all { it.value } && checkNotificationPermission(context)
 
 
 @Composable
