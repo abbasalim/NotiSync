@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.NotificationsOff
+import androidx.compose.material.icons.outlined.QrCode
 import androidx.compose.material.icons.outlined.SettingsInputComponent
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.Button
@@ -57,6 +58,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.esfandune.component.selector.AppSelectorView
 import com.esfandune.screen.component.ClipboardContentDialog
 import com.esfandune.screen.component.MainTopBar
+import com.esfandune.screen.component.QrScannerDialog
 import com.esfandune.ui.ButtonCard
 import com.esfandune.ui.StatItem
 import com.esfandune.util.rememberWiFiState
@@ -75,6 +77,7 @@ fun NotificationForwarderScreen() {
     var serverPort by remember { mutableStateOf("8080") }
     var showAppSelectorDialog by remember { mutableStateOf(false) }
     var showServerSettings by remember { mutableStateOf(false) }
+    var showQrScanner by remember { mutableStateOf(false) }
     var tempSelectedExcludedPackages by remember { mutableStateOf<Set<String>>(emptySet()) }
     var showPermissionHandler by remember { mutableStateOf(true) }
     if (showPermissionHandler) {
@@ -179,24 +182,45 @@ fun NotificationForwarderScreen() {
                             )
                         }
 
-                        OutlinedTextField(
-                            value = serverIp,
-                            onValueChange = { serverIp = it },
-                            label = { Text("آدرس IP سرور") },
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            shape = RoundedCornerShape(12.dp)
-                        )
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OutlinedTextField(
+                                value = serverIp,
+                                onValueChange = { serverIp = it },
+                                label = { Text("آدرس IP سرور") },
+                                modifier = Modifier.weight(2f),
+                                singleLine = true,
+                                shape = RoundedCornerShape(12.dp)
+                            )
 
-                        OutlinedTextField(
-                            value = serverPort,
-                            onValueChange = { serverPort = it },
-                            label = { Text("پورت سرور") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            shape = RoundedCornerShape(12.dp)
-                        )
+                            OutlinedTextField(
+                                value = serverPort,
+                                onValueChange = { serverPort = it },
+                                label = { Text("پورت سرور") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier.weight(1f),
+                                singleLine = true,
+                                shape = RoundedCornerShape(12.dp)
+                            )
+
+                            Button(
+                                onClick = { showQrScanner = true },
+                                modifier = Modifier.height(56.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondary,
+                                    contentColor = MaterialTheme.colorScheme.onSecondary
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.QrCode,
+                                    contentDescription = "اسکن QR کد"
+                                )
+                            }
+                        }
 
                         Button(
                             onClick = {
@@ -331,6 +355,17 @@ fun NotificationForwarderScreen() {
         }
     }
 
+    // QR Scanner Dialog
+    if (showQrScanner) {
+        QrScannerDialog(
+            onDismiss = { showQrScanner = false },
+            onResult = { ip, port ->
+                serverIp = ip
+                serverPort = port
+                showQrScanner = false
+            }
+        )
+    }
 
     viewModel.lastClipboardData.value?.let { data ->
         ClipboardContentDialog(
