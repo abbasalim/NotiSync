@@ -61,6 +61,7 @@ import com.esfandune.screen.component.ClipboardContentDialog
 import com.esfandune.screen.component.MainTopBar
 import com.esfandune.screen.component.QrScannerDialog
 import com.esfandune.ui.ButtonCard
+import com.esfandune.ui.HelpDialog
 import com.esfandune.ui.StatItem
 import com.esfandune.util.rememberWiFiState
 import kotlinx.coroutines.launch
@@ -351,7 +352,9 @@ fun NotificationForwarderScreen() {
 
         }
     }
-
+    if (viewModel.showHelDialog.value){
+        HelpDialog { viewModel.showHelDialog.value=false }
+    }
     // QR Scanner Dialog
     if (viewModel.showQrScanner.value) {
         QrScannerDialog(
