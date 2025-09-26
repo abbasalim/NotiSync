@@ -29,8 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,7 +40,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.esfandune.NotificationManager
-import com.esfandune.NotificationServer
 import com.esfandune.model.NotificationData
 import com.esfandune.ui.theme.AppTheme
 import com.esfandune.util.packageToEmoji
@@ -57,22 +54,12 @@ import java.net.URI
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun MainApp() {
-    val notificationManager = remember { NotificationManager() }
-    val server = remember { NotificationServer(notificationManager) }
+fun MainApp(notificationManager: NotificationManager) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedPackage by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(Unit) {
-        server.start()
-    }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            server.stop()
-        }
-    }
 
     @Composable
     fun FilterApps() {
@@ -223,6 +210,7 @@ fun MainApp() {
 
 
 }
+
 
 
 private fun getDeviceIp(): String = NetworkInterface.getNetworkInterfaces()
