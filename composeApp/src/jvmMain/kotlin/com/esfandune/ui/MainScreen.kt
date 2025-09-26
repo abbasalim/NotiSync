@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -60,6 +61,7 @@ fun MainApp(notificationManager: NotificationManager) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedPackage by remember { mutableStateOf<String?>(null) }
+    var showQRDialog by remember { mutableStateOf(false) }
 
 
 
@@ -162,11 +164,28 @@ fun MainApp(notificationManager: NotificationManager) {
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
                 ) {
-                    Text(
-                        text = "http://${getDeviceIp()}:8080",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(16.dp)
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "http://${getDeviceIp()}:8080",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(
+                            onClick = { showQRDialog = true }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.QrCode,
+                                contentDescription = "نمایش QR Code",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                 }
 
 
@@ -216,6 +235,14 @@ fun MainApp(notificationManager: NotificationManager) {
                     }
                 }
             }
+        }
+        
+        // QR Code Dialog
+        if (showQRDialog) {
+            QRCodeDialog(
+                url = "http://${getDeviceIp()}:8080",
+                onDismiss = { showQRDialog = false }
+            )
         }
     }
 
