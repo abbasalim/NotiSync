@@ -15,10 +15,11 @@ import com.esfandune.ui.MainApp
 import notisync.composeapp.generated.resources.Res
 import notisync.composeapp.generated.resources.icon_dark
 import org.jetbrains.compose.resources.painterResource
-import kotlin.system.exitProcess
 import java.awt.SystemTray
 import java.awt.TrayIcon
-import javax.imageio.ImageIO
+import kotlin.system.exitProcess
+
+
 
 fun main() = application {
 
@@ -26,11 +27,10 @@ fun main() = application {
     val server = remember { NotificationServer(notificationManager) }
     val icon = painterResource(Res.drawable.icon_dark)
     val isOpen = remember { mutableStateOf(true) }
-    
+
     // Set up system notification callback
     LaunchedEffect(notificationManager) {
         notificationManager.onShowSystemNotification = { title, message ->
-            // Show system notification using system tray
             if (SystemTray.isSupported()) {
                 try {
                     val systemTray = SystemTray.getSystemTray()
@@ -62,20 +62,25 @@ fun main() = application {
                 "Show",
                 onClick = { isOpen.value = true }
             )
-            Item(
-                "Test Notification",
-                onClick = { 
-                    notificationManager.addNotification(
-                        NotificationData(
-                            packageName = "com.test.app",
-                            appName = "Test App",
-                            title = "Test Notification",
-                            message = "This is a test notification from tray menu",
-                            timestamp = System.currentTimeMillis()
+
+            // Only show test notification in debug mode
+            if (isDebugMode()) {
+                Item(
+                    "Test Notification",
+                    onClick = {
+                        notificationManager.addNotification(
+                            NotificationData(
+                                packageName = "com.test.app",
+                                appName = "Test App",
+                                title = "Test Notification",
+                                message = "This is a test notification from tray menu",
+                                timestamp = System.currentTimeMillis()
+                            )
                         )
-                    )
-                }
-            )
+                    }
+                )
+            }
+            
             Item(
                 "Exit",
                 onClick = { exitProcess(1) }
