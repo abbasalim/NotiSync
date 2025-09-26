@@ -61,7 +61,7 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                 }
 
                 get("/") {
-                    call.respondText("Notification Server is running!")
+                    call.respond(mapOf("status" to  "success" ))
                 }
                 get("/clipboard") {
                     sendClipboard()

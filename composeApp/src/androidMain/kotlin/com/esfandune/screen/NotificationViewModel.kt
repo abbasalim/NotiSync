@@ -2,19 +2,13 @@ package com.esfandune.screen
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.ComponentName
 import android.content.Context
-import android.provider.Settings
 import android.util.Log
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esfandune.model.ClipboardData
 import com.esfandune.model.UiState
-import com.esfandune.service.NotificationListenerService
 import com.esfandune.service.NotificationService
 import com.esfandune.setting.SettingsManager
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -75,10 +69,22 @@ class NotificationViewModel : ViewModel() {
                     serverPort = serverPort,
                     statusMessage = "تنظیمات ذخیره شد"
                 )
+                testConnection()
             } ?: run {
                 _uiState.value = _uiState.value.copy(
                     statusMessage = "خطا: SettingsManager مقداردهی نشده"
                 )
+            }
+        }
+    }
+
+    fun testConnection() {
+        getServer()?.let { notificationService ->
+            viewModelScope.launch {
+                if (notificationService.testConnection()) {
+                    _uiState.value = _uiState.value.copy(statusMessage = "اتصال موفقیت آمیز")
+                    showServerSettings.value = false
+                } else _uiState.value = _uiState.value.copy(statusMessage = "اتصال ناموفق")
             }
         }
     }
@@ -101,8 +107,6 @@ class NotificationViewModel : ViewModel() {
     }
 
 
-
-
     fun refreshStats() { // Renamed from refreshUiState to be more specific, and now reloads all settings
         settingsManager?.let {
             loadSettingsFromManager()
@@ -114,13 +118,11 @@ class NotificationViewModel : ViewModel() {
     }
 
     fun getClipboard(context: Context) {
-        if (receivingClipboard.value){
+        if (receivingClipboard.value) {
             _uiState.value = uiState.value.copy(statusMessage = "در حال دریافت کلیپ بورد...")
             return
         }
-        settingsManager?.getSettings()?.let { settings ->
-            val notificationService =
-                NotificationService(serverIp = settings.serverIp, serverPort = settings.serverPort)
+        getServer()?.let { notificationService ->
             viewModelScope.launch {
                 receivingClipboard.value = true
                 val clipboardData = notificationService.getClipboard()
@@ -129,15 +131,22 @@ class NotificationViewModel : ViewModel() {
                 when {
                     !clipboardData.text.isNullOrEmpty() -> {
                         // Handle text content
-                        val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clipboardManager =
+                            context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("text_content", clipboardData.text)
                         clipboardManager.setPrimaryClip(clip)
-                        Log.d("clipboard", "Copied text to clipboard: ${clipboardData.text.take(50)}...")
-                        _uiState.value = _uiState.value.copy(statusMessage = "${clipboardData.text.take(50)}..." )
+                        Log.d(
+                            "clipboard",
+                            "Copied text to clipboard: ${clipboardData.text.take(50)}..."
+                        )
+                        _uiState.value =
+                            _uiState.value.copy(statusMessage = "${clipboardData.text.take(50)}...")
                     }
+
                     !clipboardData.imageData.isNullOrEmpty() -> {
                         lastClipboardData.value = clipboardData
                     }
+
                     !clipboardData.fileData.isNullOrEmpty() -> {
                         lastClipboardData.value = clipboardData
                         // Handle file content
@@ -155,12 +164,16 @@ class NotificationViewModel : ViewModel() {
 //                            return clipboardData.copy(error = "Failed to process file data: ${e.message}")
 //                        }
                     }
+
                     !clipboardData.error.isNullOrEmpty() -> {
-                        _uiState.value = _uiState.value.copy(statusMessage = " : ${clipboardData.error}")
+                        _uiState.value =
+                            _uiState.value.copy(statusMessage = " : ${clipboardData.error}")
                         Log.d("clipboard", "Server returned error: ${clipboardData.error}")
                     }
+
                     else -> {
-                        _uiState.value = _uiState.value.copy(statusMessage = " محتوی در کلیپ برد نیست!")
+                        _uiState.value =
+                            _uiState.value.copy(statusMessage = " محتوی در کلیپ برد نیست!")
                         Log.d("clipboard", "No content in clipboard")
                     }
                 }
@@ -168,7 +181,17 @@ class NotificationViewModel : ViewModel() {
         }
     }
 
-    fun  showMessage(msg: String){
+    fun getServer(): NotificationService? {
+        settingsManager?.getSettings()?.let { settings ->
+            return NotificationService(
+                serverIp = settings.serverIp,
+                serverPort = settings.serverPort
+            )
+        }
+        return null
+    }
+
+    fun showMessage(msg: String) {
         _uiState.value = _uiState.value.copy(statusMessage = msg)
     }
 }

@@ -1,9 +1,5 @@
 package com.esfandune.service
 
-import android.app.Activity
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.util.Log
 import com.esfandune.model.ClipboardData
 import com.esfandune.model.NotificationData
@@ -17,28 +13,13 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import androidx.core.net.toUri
-import java.io.File
-import java.io.FileOutputStream
-import android.content.Intent
-import android.content.pm.PackageManager
-import androidx.core.content.FileProvider
-import androidx.core.content.ContextCompat.startActivity
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.os.Build
-import androidx.compose.ui.platform.LocalContext
-import java.io.ByteArrayInputStream
 
-class NotificationService( serverIp: String,  serverPort: Int) {
+class NotificationService(serverIp: String, serverPort: Int) {
     val baseUrl = "http://$serverIp:$serverPort"
     private val client = HttpClient {
         install(ContentNegotiation) {
@@ -81,7 +62,7 @@ class NotificationService( serverIp: String,  serverPort: Int) {
                     connectTimeoutMillis = 5000
                 }
             }.body<ClipboardData>()
-            
+
             Log.d("clipboard", "Received clipboard data: $clipboardData")
             return clipboardData
 
@@ -89,6 +70,16 @@ class NotificationService( serverIp: String,  serverPort: Int) {
             val error = "Error: ${e.message ?: "Unknown error"}"
             Log.e("clipboard", error, e)
             return ClipboardData(error = error)
+        }
+    }
+
+    suspend fun testConnection(): Boolean {
+        return try {
+            val response = client.get("/").body<Map<String, String>>()
+            response["status"] == "success"
+        } catch (e: Exception) {
+            Log.e("ConnectionTest", "Failed to connect to server", e)
+            false
         }
     }
 }
