@@ -1,6 +1,9 @@
 package com.esfandune
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import com.esfandune.model.NotificationData
 import com.esfandune.util.packageToEmoji
 
@@ -8,11 +11,19 @@ class NotificationManager {
     private val _notifications = mutableStateListOf<List<NotificationData>>()
     val notifications: List<List<NotificationData>> = _notifications
 
+    // Silent mode state
+    private var _isSilentMode by mutableStateOf(false)
+    val isSilentMode: Boolean get() = _isSilentMode
+
     // Callback for showing system notifications
     var onShowSystemNotification: ((String, String) -> Unit)? = null
 
     fun clearAll() {
         _notifications.clear()
+    }
+
+    fun toggleSilentMode() {
+        _isSilentMode = !_isSilentMode
     }
 
     fun addNotification(notification: NotificationData) {
@@ -33,10 +44,13 @@ class NotificationManager {
     }
 
     private fun showSystemNotification(notification: NotificationData) {
-        onShowSystemNotification?.invoke(
-            "${notification.packageName.packageToEmoji()} ${notification.appName}: ${notification.title}",
-            notification.message
-        )
+        // Only show system notification if not in silent mode
+        if (!_isSilentMode) {
+            onShowSystemNotification?.invoke(
+                "${notification.packageName.packageToEmoji()} ${notification.appName}: ${notification.title}",
+                notification.message
+            )
+        }
     }
 
     fun markAsRead(notification: NotificationData): Boolean {

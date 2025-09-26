@@ -15,6 +15,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -105,6 +107,15 @@ fun MainApp(notificationManager: NotificationManager) {
                         )
                     },
                     actions = {
+                        IconButton(onClick = {
+                            notificationManager.toggleSilentMode()
+                        }) {
+                            Icon(
+                                imageVector = if (notificationManager.isSilentMode) Icons.Default.NotificationsOff else Icons.Default.Notifications,
+                                contentDescription = if (notificationManager.isSilentMode) "فعال کردن نوتیف" else "غیرفعال کردن نوتیف",
+                                tint = if (notificationManager.isSilentMode) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
                         IconButton(onClick = {
                             Desktop.getDesktop().browse(URI("http://tools.esfandune.ir/"))
                         }) {
