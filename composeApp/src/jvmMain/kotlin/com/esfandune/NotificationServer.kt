@@ -1,7 +1,6 @@
 package com.esfandune
 
 
-import androidx.compose.ui.text.toLowerCase
 import com.esfandune.model.ClipboardData
 import com.esfandune.model.NotificationData
 import io.ktor.serialization.kotlinx.json.json
@@ -18,17 +17,15 @@ import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import java.awt.Image
 import java.awt.Toolkit
 import java.awt.datatransfer.DataFlavor
-import java.awt.datatransfer.UnsupportedFlavorException
+import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
-import java.util.Base64
-import javax.imageio.ImageIO
 import java.io.File
 import java.nio.file.Files
-import java.awt.Image
-import java.awt.datatransfer.Transferable
-import java.awt.image.BufferedImage
+import java.util.Base64
+import javax.imageio.ImageIO
 
 class NotificationServer(private val notificationManager: NotificationManager) {
     private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? =
@@ -191,7 +188,7 @@ class NotificationServer(private val notificationManager: NotificationManager) {
     }
 
     private fun isNotExclude(notification: NotificationData): Boolean {
-        if (notification.appName.lowercase() in listOf<String>("system ui","واسط کاربری سیستم")) {
+        if (notification.appName.lowercase() in listOf<String>("system ui", "واسط کاربری سیستم")) {
             println("${notification.packageName} ${notification.appName} is exclude")
             return false
         } else {
