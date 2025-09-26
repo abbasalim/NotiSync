@@ -6,7 +6,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.provider.Settings
 import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esfandune.model.ClipboardData
@@ -26,6 +29,12 @@ class NotificationViewModel : ViewModel() {
     private var settingsManager: SettingsManager? = null
     var receivingClipboard = mutableStateOf(false)
     val lastClipboardData = mutableStateOf<ClipboardData?>(null)
+    val showHelDialog = mutableStateOf(false)
+    val serverIp = mutableStateOf("192.168.1.100")
+    val serverPort = mutableStateOf("8080")
+    val showAppSelectorDialog = mutableStateOf(false)
+    val showServerSettings = mutableStateOf(false)
+    val showQrScanner = mutableStateOf(false)
 
     fun initializeWithContext(context: Context) {
         if (settingsManager == null) {

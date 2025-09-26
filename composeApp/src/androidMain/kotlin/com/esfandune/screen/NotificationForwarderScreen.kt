@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.QrCode
@@ -73,11 +74,7 @@ fun NotificationForwarderScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.uiState.collectAsState()
 
-    var serverIp by remember { mutableStateOf("192.168.1.100") }
-    var serverPort by remember { mutableStateOf("8080") }
-    var showAppSelectorDialog by remember { mutableStateOf(false) }
-    var showServerSettings by remember { mutableStateOf(false) }
-    var showQrScanner by remember { mutableStateOf(false) }
+
     var tempSelectedExcludedPackages by remember { mutableStateOf<Set<String>>(emptySet()) }
     var showPermissionHandler by remember { mutableStateOf(true) }
     if (showPermissionHandler) {
@@ -89,8 +86,8 @@ fun NotificationForwarderScreen() {
     }
 
     LaunchedEffect(uiState.serverIp, uiState.serverPort) {
-        serverIp = uiState.serverIp
-        serverPort = uiState.serverPort.toString()
+        viewModel.serverIp.value = uiState.serverIp
+        viewModel.serverPort.value = uiState.serverPort.toString()
     }
 
     LaunchedEffect(uiState.excludedPackages) {
@@ -108,7 +105,11 @@ fun NotificationForwarderScreen() {
     }
 
     Scaffold(
-        topBar = { MainTopBar { showServerSettings = !showServerSettings } },
+        topBar = {
+            MainTopBar {
+                viewModel.showServerSettings.value = !viewModel.showServerSettings.value
+            }
+        },
         floatingActionButton = {
             FAB(viewModel)
         },
@@ -128,20 +129,16 @@ fun NotificationForwarderScreen() {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Permission Status Card
-//          todo change       ButtonCard(
-//                    modifier = Modifier.weight(1f),
-//                    title = "وضعیت دسترسی",
-//                    status = if (uiState.hasNotificationPermission) "فعال" else "غیرفعال",
-//                    icon = if (uiState.hasNotificationPermission) Icons.Default.Notifications
-//                    else Icons.Outlined.NotificationsOff,
-//                    isActive = uiState.hasNotificationPermission,
-//                    onClick = {
-//                        if (!uiState.hasNotificationPermission) {
-//                            val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-//                            context.startActivity(intent)
-//                        }
-//                    }
-//                )
+                ButtonCard(
+                    modifier = Modifier.weight(1f),
+                    title = "راهنمای اتصال",
+                    status = "مشاهده",
+                    icon = Icons.AutoMirrored.Filled.Help,
+                    isActive = true,
+                    onClick = {
+                        viewModel.showHelDialog.value = true
+                    }
+                )
 
                 // Service Status Card
                 ButtonCard(
@@ -152,13 +149,13 @@ fun NotificationForwarderScreen() {
                     isActive = uiState.excludedPackages.isNotEmpty(),
                     onClick = {
                         tempSelectedExcludedPackages = uiState.excludedPackages
-                        showAppSelectorDialog = true
+                        viewModel.showAppSelectorDialog.value = true
                     }
                 )
             }
 
             // Server Settings Section
-            AnimatedVisibility(showServerSettings) {
+            AnimatedVisibility(viewModel.showServerSettings.value) {
                 OutlinedCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -188,8 +185,8 @@ fun NotificationForwarderScreen() {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             OutlinedTextField(
-                                value = serverIp,
-                                onValueChange = { serverIp = it },
+                                value = viewModel.serverIp.value,
+                                onValueChange = { viewModel.serverIp.value = it },
                                 label = { Text("آدرس IP سرور") },
                                 modifier = Modifier.weight(2f),
                                 singleLine = true,
@@ -197,8 +194,8 @@ fun NotificationForwarderScreen() {
                             )
 
                             OutlinedTextField(
-                                value = serverPort,
-                                onValueChange = { serverPort = it },
+                                value = viewModel.serverPort.value,
+                                onValueChange = { viewModel.serverPort.value = it },
                                 label = { Text("پورت سرور") },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 modifier = Modifier.weight(1f),
@@ -207,7 +204,7 @@ fun NotificationForwarderScreen() {
                             )
 
                             Button(
-                                onClick = { showQrScanner = true },
+                                onClick = { viewModel.showQrScanner.value = true },
                                 modifier = Modifier.height(56.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
@@ -225,8 +222,8 @@ fun NotificationForwarderScreen() {
                         Button(
                             onClick = {
                                 viewModel.saveSettings(
-                                    serverIp = serverIp,
-                                    serverPort = serverPort.toIntOrNull() ?: 8080
+                                    serverIp = viewModel.serverIp.value,
+                                    serverPort = viewModel.serverPort.value.toIntOrNull() ?: 8080
                                 )
                             },
                             modifier = Modifier
@@ -283,9 +280,9 @@ fun NotificationForwarderScreen() {
                 }
             }
 
-            if (showAppSelectorDialog) {
+            if (viewModel.showAppSelectorDialog.value) {
                 Dialog(
-                    onDismissRequest = { showAppSelectorDialog = false },
+                    onDismissRequest = { viewModel.showAppSelectorDialog.value = false },
                     properties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     Surface(
@@ -325,7 +322,7 @@ fun NotificationForwarderScreen() {
                                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                             ) {
                                 OutlinedButton(
-                                    onClick = { showAppSelectorDialog = false },
+                                    onClick = { viewModel.showAppSelectorDialog.value = false },
                                     colors = ButtonDefaults.outlinedButtonColors(
                                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -336,7 +333,7 @@ fun NotificationForwarderScreen() {
                                 Button(
                                     onClick = {
                                         viewModel.saveExcludedPackages(tempSelectedExcludedPackages.toList())
-                                        showAppSelectorDialog = false
+                                        viewModel.showAppSelectorDialog.value = false
                                     },
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.primary,
@@ -356,13 +353,13 @@ fun NotificationForwarderScreen() {
     }
 
     // QR Scanner Dialog
-    if (showQrScanner) {
+    if (viewModel.showQrScanner.value) {
         QrScannerDialog(
-            onDismiss = { showQrScanner = false },
+            onDismiss = { viewModel.showQrScanner.value = false },
             onResult = { ip, port ->
-                serverIp = ip
-                serverPort = port
-                showQrScanner = false
+                viewModel.serverIp.value = ip
+                viewModel.serverPort.value = port
+                viewModel.showQrScanner.value = false
             }
         )
     }
