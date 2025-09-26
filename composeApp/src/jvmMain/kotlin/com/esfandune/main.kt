@@ -10,22 +10,20 @@ import androidx.compose.ui.window.Tray
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
-import com.esfandune.model.NotificationData
 import com.esfandune.ui.MainApp
 import notisync.composeapp.generated.resources.Res
 import notisync.composeapp.generated.resources.icon_dark
+import notisync.composeapp.generated.resources.try_icon
 import org.jetbrains.compose.resources.painterResource
 import java.awt.SystemTray
 import java.awt.TrayIcon
 import kotlin.system.exitProcess
 
 
-
 fun main() = application {
 
     val notificationManager = remember { NotificationManager() }
     val server = remember { NotificationServer(notificationManager) }
-    val icon = painterResource(Res.drawable.icon_dark)
     val isOpen = remember { mutableStateOf(true) }
 
     // Set up system notification callback
@@ -56,33 +54,15 @@ fun main() = application {
     }
 
     Tray(
-        icon = icon,
+        icon = painterResource(Res.drawable.try_icon),
         menu = {
             Item(
-                "Show",
-                onClick = { isOpen.value = true }
+                if (isOpen.value) "مخفی کردن" else "نمایش برنامه ",
+                onClick = { isOpen.value = isOpen.value.not() }
             )
 
-            // Only show test notification in debug mode
-            if (isDebugMode()) {
-                Item(
-                    "Test Notification",
-                    onClick = {
-                        notificationManager.addNotification(
-                            NotificationData(
-                                packageName = "com.test.app",
-                                appName = "Test App",
-                                title = "Test Notification",
-                                message = "This is a test notification from tray menu",
-                                timestamp = System.currentTimeMillis()
-                            )
-                        )
-                    }
-                )
-            }
-            
             Item(
-                "Exit",
+                "خروج کامل",
                 onClick = { exitProcess(1) }
             )
         }
@@ -90,7 +70,7 @@ fun main() = application {
 
     if (isOpen.value) {
         Window(
-            icon = icon,
+            icon = painterResource(Res.drawable.icon_dark),
             onCloseRequest = { isOpen.value = false },
             title = "NotiSync",
             state = WindowState(
