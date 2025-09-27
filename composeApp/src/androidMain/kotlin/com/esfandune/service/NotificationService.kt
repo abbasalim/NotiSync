@@ -74,6 +74,7 @@ class NotificationService(serverIp: String, serverPort: Int) {
     }
 
     suspend fun testConnection(): Boolean {
+        ///todo
         return try {
             val response = client.get("/").body<Map<String, String>>()
             response["status"] == "success"
