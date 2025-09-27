@@ -1,12 +1,15 @@
 package com.esfandune.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -28,7 +31,8 @@ import java.util.Locale
 fun NotificationCard(
     modifier: Modifier = Modifier,
     notifications: List<NotificationData>,
-    onMarkAsRead: () -> Unit
+    onMarkAsRead: () -> Unit,
+    onCopy: ((NotificationData) -> Unit)? = null,
 ) {
     Card(
         modifier = modifier
@@ -47,7 +51,7 @@ fun NotificationCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "${notifications.firstOrNull()?.packageName?.packageToEmoji()} ${notifications.firstOrNull()?.appName?:""}",
+                    text = "${notifications.firstOrNull()?.packageName?.packageToEmoji()} ${notifications.firstOrNull()?.appName ?: ""}",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier
                 )
@@ -71,12 +75,29 @@ fun NotificationCard(
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
                             )
-                            Text(
-                                text = java.text.SimpleDateFormat("HH:mm", Locale.US)
-                                    .format(notification.timestamp),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = java.text.SimpleDateFormat("HH:mm", Locale.US)
+                                        .format(notification.timestamp),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.Gray
+                                )
+                                onCopy?.let { copy ->
+                                    if (notification.message.isNotBlank()) {
+                                        Icon(
+                                            imageVector = Icons.Default.ContentCopy,
+                                            contentDescription = "Copy to clipboard",
+                                            modifier = Modifier.clickable {
+                                                copy(notification)
+                                            }.size(18.dp),
+                                            tint = Color.Gray
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }

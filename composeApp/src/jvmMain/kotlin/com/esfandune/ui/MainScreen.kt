@@ -3,6 +3,8 @@ package com.esfandune.ui
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -228,6 +230,10 @@ fun MainApp(notificationManager: NotificationManager) {
                                             sendReadConfirmation(notification)
                                             notificationManager.markAsRead(notification)
                                         }
+                                    },
+                                    onCopy = { data ->
+                                        val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+                                        clipboard.setContents(StringSelection(data.message), null)
                                     }
                                 )
                             }
