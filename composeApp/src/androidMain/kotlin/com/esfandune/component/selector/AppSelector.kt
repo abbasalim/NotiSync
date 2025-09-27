@@ -5,7 +5,9 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,11 +21,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import kotlinx.coroutines.launch
@@ -46,28 +47,29 @@ fun AppSelectorView(
 ) {
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(true) }
+    var showSystemApps by remember { mutableStateOf(true) }
     var appsList by remember { mutableStateOf<List<AppInfo>>(emptyList()) }
     var selectedPackages by remember { mutableStateOf(preselectedPackages.toSet()) }
-    var scope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
-    
-    LaunchedEffect(Unit) {
+
+    LaunchedEffect(showSystemApps) {
         scope.launch {
             isLoading = true
-            appsList = getInstalledApps(context)
+            appsList = getInstalledApps(context, showSystemApps)
                 .sortedByDescending { it.packageName in selectedPackages }
             isLoading = false
         }
     }
-    
+
     val filteredApps = remember(appsList, searchQuery.text) {
         if (searchQuery.text.isEmpty()) {
             appsList
         } else {
             val query = searchQuery.text.lowercase()
-            appsList.filter { 
-                it.name.lowercase().contains(query) || 
-                it.packageName.lowercase().contains(query)
+            appsList.filter {
+                it.name.lowercase().contains(query) ||
+                        it.packageName.lowercase().contains(query)
             }
         }
     }
@@ -77,37 +79,43 @@ fun AppSelectorView(
             CircularProgressIndicator()
         }
     } else {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            item {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    label = { Text("Search apps") },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search"
-                        )
-                    },
-                    singleLine = true
-                )
+        Column(modifier = Modifier.fillMaxSize() .padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("انتخاب کنید، اعلان مربوط به کدام برنامه ها برای دسکتاپ ارسال نشود:")
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Search apps") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
+                },
+                singleLine = true
+            )
+            Row(
+                modifier = Modifier.padding(bottom = 4.dp).clickable { showSystemApps = !showSystemApps },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(showSystemApps, onCheckedChange = { showSystemApps = it })
+                Text("نمایش برنامه‌‌های سیستمی")
             }
-            items(filteredApps, key = { it.packageName }) { appInfo ->
-                AppListItem(
-                    appInfo = appInfo,
-                    isSelected = appInfo.packageName in selectedPackages,
-                    onAppSelected = { packageName, isSelected ->
-                        selectedPackages = if (isSelected) {
-                            selectedPackages + packageName
-                        } else {
-                            selectedPackages - packageName
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(filteredApps, key = { it.packageName }) { appInfo ->
+                    AppListItem(
+                        appInfo = appInfo,
+                        isSelected = appInfo.packageName in selectedPackages,
+                        onAppSelected = { packageName, isSelected ->
+                            selectedPackages = if (isSelected) {
+                                selectedPackages + packageName
+                            } else {
+                                selectedPackages - packageName
+                            }
+                            onSelectionChanged(selectedPackages.toList())
                         }
-                        onSelectionChanged(selectedPackages.toList())
-                    }
-                )
+                    )
+                }
             }
         }
     }
@@ -123,7 +131,7 @@ fun AppListItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onAppSelected(appInfo.packageName, !isSelected) }
-            .padding(16.dp),
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -140,7 +148,7 @@ fun AppListItem(
     }
 }
 
-private fun getInstalledApps(context: Context): List<AppInfo> {
+private fun getInstalledApps(context: Context, showSystemApps: Boolean): List<AppInfo> {
     val pm = context.packageManager
     val intent = Intent(Intent.ACTION_MAIN, null).apply {
         addCategory(Intent.CATEGORY_LAUNCHER)
@@ -151,7 +159,7 @@ private fun getInstalledApps(context: Context): List<AppInfo> {
     for (resolveInfo in resolveInfoList) {
         val appInfo = resolveInfo.activityInfo.applicationInfo
         // Non-system apps or updated system apps
-        if ((appInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 0 || (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0) {
+        if ((appInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 0 || (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0 || showSystemApps) {
             val appName = appInfo.loadLabel(pm).toString()
             val packageName = appInfo.packageName
             val icon = appInfo.loadIcon(pm)
