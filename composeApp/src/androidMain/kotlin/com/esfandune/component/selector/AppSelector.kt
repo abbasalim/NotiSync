@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
@@ -79,7 +81,12 @@ fun AppSelectorView(
             CircularProgressIndicator()
         }
     } else {
-        Column(modifier = Modifier.fillMaxSize() .padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Text("انتخاب کنید، اعلان مربوط به کدام برنامه ها برای دسکتاپ ارسال نشود:")
             OutlinedTextField(
                 value = searchQuery,
@@ -95,7 +102,9 @@ fun AppSelectorView(
                 singleLine = true
             )
             Row(
-                modifier = Modifier.padding(bottom = 4.dp).clickable { showSystemApps = !showSystemApps },
+                modifier = Modifier
+                    .padding(bottom = 4.dp)
+                    .clickable { showSystemApps = !showSystemApps },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(showSystemApps, onCheckedChange = { showSystemApps = it })
@@ -131,7 +140,7 @@ fun AppListItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onAppSelected(appInfo.packageName, !isSelected) }
-            .padding(8.dp),
+            .padding(vertical = 8.dp, horizontal = 0.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -140,7 +149,18 @@ fun AppListItem(
             modifier = Modifier.size(40.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
-        Text(text = appInfo.name, modifier = Modifier.weight(1f))
+        Column(modifier = Modifier .weight(1f)) {
+        Text(
+            text = appInfo.name,
+            modifier = Modifier.fillMaxWidth().basicMarquee(),
+            maxLines = 1
+        )
+        Text(
+            text = appInfo.packageName,
+            modifier = Modifier.fillMaxWidth().basicMarquee().alpha(0.5f),
+            maxLines = 1
+        )
+        }
         Checkbox(
             checked = isSelected,
             onCheckedChange = { onAppSelected(appInfo.packageName, it) }
