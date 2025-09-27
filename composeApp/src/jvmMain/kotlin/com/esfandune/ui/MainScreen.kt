@@ -10,14 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ClearAll
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -37,13 +33,12 @@ import androidx.compose.ui.unit.dp
 import com.esfandune.NotificationManager
 import com.esfandune.model.NotificationData
 import com.esfandune.ui.component.ConnectCardInfo
+import com.esfandune.ui.component.MainTopBar
 import com.esfandune.ui.component.NotifList
 import com.esfandune.ui.theme.AppTheme
 import com.esfandune.util.packageToEmoji
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import java.awt.Desktop
-import java.net.URI
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,23 +94,13 @@ fun MainApp(notificationManager: NotificationManager) {
                         )
                     },
                     actions = {
-                        IconButton(onClick = {
-                            notificationManager.toggleSilentMode()
-                        }) {
-                            Icon(
-                                imageVector = if (notificationManager.isSilentMode) Icons.Default.NotificationsOff else Icons.Default.Notifications,
-                                contentDescription = if (notificationManager.isSilentMode) "فعال کردن نوتیف" else "غیرفعال کردن نوتیف",
-                                tint = if (notificationManager.isSilentMode) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
-                        IconButton(onClick = {
-                            Desktop.getDesktop().browse(URI("http://tools.esfandune.ir/"))
-                        }) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = "درباره"
-                            )
-                        }
+                        MainTopBar(
+                            notificationManager,
+                            showSnackbar = {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(it)
+                                }
+                            })
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
