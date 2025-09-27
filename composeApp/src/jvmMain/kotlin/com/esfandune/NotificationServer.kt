@@ -188,7 +188,7 @@ class NotificationServer(private val notificationManager: NotificationManager) {
     }
 
     private fun isNotExclude(notification: NotificationData): Boolean {
-        if (notification.appName.lowercase() in listOf<String>("system ui", "واسط کاربری سیستم")) {
+        if (notification.appName.lowercase() in listOf("system ui", "واسط کاربری سیستم","سیستم ui")) {
             println("${notification.packageName} ${notification.appName} is exclude")
             return false
         } else {
