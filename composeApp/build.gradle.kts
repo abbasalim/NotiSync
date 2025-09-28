@@ -115,8 +115,9 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.esfandune"
+            packageName = "NotiSync"
             packageVersion = "1.0.0"
+            vendor = "Esfandune.ir"
 
             modules("java.instrument", "jdk.unsupported")
             windows {
