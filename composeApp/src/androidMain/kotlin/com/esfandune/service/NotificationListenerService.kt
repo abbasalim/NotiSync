@@ -1,11 +1,17 @@
 package com.esfandune.service
 
+import android.app.Notification.EXTRA_PROGRESS
+import android.app.Notification.EXTRA_PROGRESS_INDETERMINATE
+import android.app.Notification.EXTRA_PROGRESS_MAX
+import android.app.Notification.EXTRA_TEXT
+import android.app.Notification.EXTRA_TITLE
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import com.esfandune.setting.SettingsManager // Added import
+import com.esfandune.setting.SettingsManager
+import kotlin.text.category
+import kotlin.toString
 
 class NotificationListenerService : NotificationListenerService() {
 
@@ -21,41 +27,42 @@ class NotificationListenerService : NotificationListenerService() {
 
         sbn?.let { notification ->
             val packageName = notification.packageName
-            val extras = notification.notification.extras
-
-            // Skip our own notifications
             if (packageName == this.packageName) {
                 Log.d("NotificationListener", "Skipping own notification: $packageName")
                 return
             }
-
-            // Check if the package is in the excluded list
             val excludedPackages = settingsManager.getExcludedPackages()
             if (packageName in excludedPackages) {
                 Log.d("NotificationListener", "Skipping excluded notification: $packageName")
-                return // Skip notification from excluded package
+                return
             }
 
-            val title = extras.getCharSequence("android.title")?.toString() ?: ""
-            val text = extras.getCharSequence("android.text")?.toString() ?: ""
-            if (title.isNotEmpty() || text.isNotEmpty()) {
-                Log.d("NotificationListener", "Processing notification: $packageName - $title: $text")
+            val category = notification.notification.category
+            val flags = notification.notification.flags
+            val extras = notification.notification.extras
+            val title = extras.getCharSequence(EXTRA_TITLE)?.toString() ?: ""
+            val message = extras.getCharSequence(EXTRA_TEXT)?.toString() ?: ""
+            val progress = extras.getInt(EXTRA_PROGRESS, 0)
+            val progressMax = extras.getInt(EXTRA_PROGRESS_MAX, 0)
+            val progressIndeterminate = extras.getBoolean(EXTRA_PROGRESS_INDETERMINATE, false)
 
-                // Send to forwarding service
-                val intent = Intent(this, NotificationForwardingService::class.java).apply {
-                    putExtra("title", title)
-                    putExtra("message", text)
-                    putExtra("package", packageName) // Keep sending package name for potential future use
-                }
 
-                startService(intent)
+            if (title.isBlank() || message.isBlank())
+                return
+
+            ///نمیشه مستقیم نوتیف رو ارسال کرد برخی اپها مثل پیامک خطای امنتی میده
+            val intent = Intent(this, NotificationForwardingService::class.java).apply {
+                putExtra("packageName", packageName)
+                putExtra("category", category)
+                putExtra("flags", flags)
+                putExtra("title", title)
+                putExtra("message", message)
+                putExtra("progress", progress)
+                putExtra("progressMax", progressMax)
+                putExtra("progressIndeterminate", progressIndeterminate)
             }
+            startService(intent)
         }
-    }
-
-    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        super.onNotificationRemoved(sbn)
-        // Handle notification removal if needed
     }
 
 

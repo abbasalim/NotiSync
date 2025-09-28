@@ -7,7 +7,9 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.esfandune.model.NotificationCategory
 import com.esfandune.model.NotificationData
 import com.esfandune.setting.SettingsManager
 import com.esfandune.util.AppData
@@ -30,19 +32,28 @@ class NotificationForwardingService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        val settings = SettingsManager(this).getSettings()
-        notificationService = NotificationService(  serverIp = settings.serverIp, serverPort = settings.serverPort)
+        settingsManager = SettingsManager(this)
         createNotificationChannel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val title = intent?.getStringExtra("title") ?: return START_NOT_STICKY
+        val settings = settingsManager.getSettings()
+        ///چون ممکنه کاربر در تنظیمات اپدیت کنه و این بروز نمیشه
+        notificationService =
+            NotificationService(serverIp = settings.serverIp, serverPort = settings.serverPort)
+        ///
+        if (intent == null) return START_NOT_STICKY
+        val packageName = intent.getStringExtra("packageName") ?: ""
+        val category = intent.getStringExtra("category") ?: ""
+        val flags = intent.getIntExtra("flags", 0)
+        val title = intent.getStringExtra("title") ?: ""
         val message = intent.getStringExtra("message") ?: ""
-        val appPackage = intent.getStringExtra("package") ?: ""
-        intent.getStringExtra("package") ?: ""
+        val progress = intent.getIntExtra("progress", 0)
+        val progressMax = intent.getIntExtra("progressMax", 0)
+        val progressIndeterminate = intent.getBooleanExtra("progressIndeterminate", false)
+        Log.d("NotificationListener", "Processing notification: $packageName - $title: $message")
 
         startForeground(NOTIFICATION_ID, createForegroundNotification())
-
         serviceScope.launch {
             try {
 
@@ -50,12 +61,18 @@ class NotificationForwardingService : Service() {
                     NotificationData(
                         title = title,
                         message = message,
-                        appName = AppData(packageManager).getAppName(appPackage),
+                        appName = AppData(packageManager).getAppName(packageName),
 //                        appIcon = AppData(packageManager).getAppIcon(appPackage)?.toBitmap(64, 64),
-                        packageName = appPackage
+                        category = NotificationCategory.entries.firstOrNull { it.value == category }
+                            ?: NotificationCategory.SYSTEM,
+                        flags = flags,
+                        progress = progress,
+                        progressMax = progressMax,
+                        progressIndeterminate = progressIndeterminate,
+                        packageName = packageName
                     ),
 
-                )
+                    )
 
                 if (success) {
                     settingsManager.incrementNotificationCount()
