@@ -8,7 +8,7 @@ data class NotificationData(
     val title: String,
     val appName: String,
 //    val appIcon: String?,
-    val category: NotificationCategory,
+    val category: NotificationCategory?,
     val flags: Int,
     val message: String,
     val progress: Int,

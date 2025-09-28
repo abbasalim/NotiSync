@@ -63,8 +63,7 @@ class NotificationForwardingService : Service() {
                         message = message,
                         appName = AppData(packageManager).getAppName(packageName),
 //                        appIcon = AppData(packageManager).getAppIcon(appPackage)?.toBitmap(64, 64),
-                        category = NotificationCategory.entries.firstOrNull { it.value == category }
-                            ?: NotificationCategory.SYSTEM,
+                        category = NotificationCategory.entries.firstOrNull { it.value == category } ,
                         flags = flags,
                         progress = progress,
                         progressMax = progressMax,

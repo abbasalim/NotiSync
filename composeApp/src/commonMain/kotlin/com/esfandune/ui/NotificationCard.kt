@@ -15,7 +15,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -83,7 +85,10 @@ fun NotificationCard(
                                     text = java.text.SimpleDateFormat("HH:mm", Locale.US)
                                         .format(notification.timestamp),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = Color.Gray
+                                    color = Color.Gray,
+                                    modifier = Modifier.clickable {
+                                        println("c:${notification.category} f:${notification.flags} p:${notification.progress} pm:${notification.progressMax} pi:${notification.progressIndeterminate}")
+                                    }
                                 )
                                 onCopy?.let { copy ->
                                     if (notification.message.isNotBlank()) {
@@ -98,6 +103,18 @@ fun NotificationCard(
                                     }
                                 }
                             }
+                            if (notification.progressIndeterminate) {
+                                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                            } else
+                                if (notification.progressMax > 0) {
+                                    LinearProgressIndicator(
+                                        progress = { notification.progress.toFloat() / notification.progressMax.toFloat() },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        color = ProgressIndicatorDefaults.linearColor,
+                                        trackColor = ProgressIndicatorDefaults.linearTrackColor,
+                                        strokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
+                                    )
+                                }
                         }
                     }
                 }
