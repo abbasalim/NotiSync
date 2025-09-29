@@ -274,7 +274,7 @@ fun NotificationForwarderScreen() {
                     )
 
                     StatItem(
-                        label = "آخرین اتصال:",
+                        label = "آخرین ارسال:",
                         value = uiState.lastConnectionTime.ifEmpty { "هرگز" }
                     )
 
