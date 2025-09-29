@@ -23,7 +23,7 @@ class SettingsManager(context: Context) {
 
     fun getSettings(): AppSettings {
         return AppSettings(
-            serverIp = prefs.getString("server_ip", "192.168.1.100") ?: "192.168.1.100",
+            serverIp = prefs.getString("server_ip", "") ?: "",
             serverPort = prefs.getInt("server_port", 8080),
             notificationsSent = prefs.getInt("notifications_sent", 0),
             lastConnectionTime = prefs.getString("last_connection", "") ?: "",

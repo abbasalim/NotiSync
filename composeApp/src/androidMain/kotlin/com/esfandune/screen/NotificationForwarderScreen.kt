@@ -89,6 +89,8 @@ fun NotificationForwarderScreen() {
     LaunchedEffect(uiState.serverIp, uiState.serverPort) {
         viewModel.serverIp.value = uiState.serverIp
         viewModel.serverPort.value = uiState.serverPort.toString()
+        if (viewModel.serverIp.value.isBlank())
+            viewModel.showServerSettings.value = true
     }
 
     LaunchedEffect(uiState.excludedPackages) {
@@ -129,7 +131,7 @@ fun NotificationForwarderScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Permission Status Card
+               //Help Card
                 ButtonCard(
                     modifier = Modifier.weight(1f),
                     title = "راهنمای اتصال",
@@ -141,7 +143,7 @@ fun NotificationForwarderScreen() {
                     }
                 )
 
-                // Service Status Card
+                //Notif card
                 ButtonCard(
                     modifier = Modifier.weight(1f),
                     title = "عدم ارسال اعلان برای",
