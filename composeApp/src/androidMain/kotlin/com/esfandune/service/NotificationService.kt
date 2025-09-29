@@ -76,7 +76,7 @@ class NotificationService(serverIp: String, serverPort: Int) {
     suspend fun testConnection(): Boolean {
         ///todo
         return try {
-            val response = client.get("/").body<Map<String, String>>()
+            val response = client.get(baseUrl).body<Map<String, String>>()
             response["status"] == "success"
         } catch (e: Exception) {
             Log.e("ConnectionTest", "Failed to connect to server", e)
