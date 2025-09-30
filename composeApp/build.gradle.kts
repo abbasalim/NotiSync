@@ -71,12 +71,6 @@ kotlin {
     }
 }
 
-// برای گرفتن خروجی دسکتاپ، از دستور زیر در ترمینال استفاده کنید:
-// ./gradlew package<Format>
-// به عنوان مثال، برای گرفتن خروجی Dmg از دستور زیر استفاده کنید:
-// ./gradlew packageDmg
-// همچنین می‌توانید از دستور زیر برای گرفتن تمام خروجی‌ها استفاده کنید:
-// ./gradlew packageDistribution
 android {
     namespace = "com.esfandune"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -111,6 +105,14 @@ android {
 dependencies {
     debugImplementation(compose.uiTooling)
 }
+
+
+// برای گرفتن خروجی دسکتاپ، از دستور زیر در ترمینال استفاده کنید:
+// ./gradlew package<Format>
+// به عنوان مثال، برای گرفتن خروجی Dmg از دستور زیر استفاده کنید:
+// ./gradlew packageDmg
+// همچنین می‌توانید از دستور زیر برای گرفتن تمام خروجی‌ها استفاده کنید:
+// ./gradlew packageDistribution
 
 compose.desktop {
     application {
