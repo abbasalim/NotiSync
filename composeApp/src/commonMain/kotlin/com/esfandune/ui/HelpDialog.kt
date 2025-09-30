@@ -1,6 +1,7 @@
 package com.esfandune.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,11 +12,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -29,6 +32,7 @@ import org.jetbrains.compose.resources.painterResource
 fun HelpDialog(
     onDismiss: () -> Unit
 ) {
+    val uriHandler = LocalUriHandler.current
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = MaterialTheme.shapes.medium,
@@ -51,7 +55,16 @@ fun HelpDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Text 1
+
+                Text(
+                    text = "0. برنامه دسکتاپ را از سایت زیر نصب نمایید:",
+                )
+                OutlinedButton(onClick = { uriHandler.openUri("http://tools.esfandune.ir") }) {
+                    Text(
+                        text = "http://tools.esfandune.ir",
+                    )
+                }
+
                 Text(
                     text = "1. راهنمای نصب و راه‌اندازی دسکتاپ:",
                     style = MaterialTheme.typography.titleMedium
