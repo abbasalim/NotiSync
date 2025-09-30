@@ -39,7 +39,8 @@ class SettingsManager(context: Context) {
     }
 
     fun getExcludedPackages(): Set<String> {
-        return prefs.getStringSet("excluded_packages", emptySet()) ?: emptySet()
+        val pkgs = prefs.getStringSet("excluded_packages", emptySet()) ?: emptySet()
+        return  pkgs.plus("com.android.systemui")
     }
 
     fun incrementNotificationCount() {

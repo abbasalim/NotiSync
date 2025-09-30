@@ -3,6 +3,12 @@ package com.esfandune.screen
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -74,6 +81,17 @@ fun NotificationForwarderScreen() {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.uiState.collectAsState()
+
+    val infiniteTransition = rememberInfiniteTransition()
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = .9f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulse"
+    )
 
 
     var tempSelectedExcludedPackages by remember { mutableStateOf<Set<String>>(emptySet()) }
@@ -131,9 +149,11 @@ fun NotificationForwarderScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-               //Help Card
+                //Help Card
                 ButtonCard(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .scale(if (viewModel.serverIp.value.isBlank()) scale else 1f),
                     title = "راهنمای اتصال",
                     status = "مشاهده",
                     icon = Icons.AutoMirrored.Filled.Help,
@@ -354,8 +374,8 @@ fun NotificationForwarderScreen() {
 
         }
     }
-    if (viewModel.showHelDialog.value){
-        HelpDialog { viewModel.showHelDialog.value=false }
+    if (viewModel.showHelDialog.value) {
+        HelpDialog { viewModel.showHelDialog.value = false }
     }
     // QR Scanner Dialog
     if (viewModel.showQrScanner.value) {

@@ -33,6 +33,7 @@ import java.util.Locale
 fun NotificationCard(
     modifier: Modifier = Modifier,
     notifications: List<NotificationData>,
+    onClock: ((NotificationData) -> Unit)? = null,
     onMarkAsRead: () -> Unit,
     onCopy: ((NotificationData) -> Unit)? = null,
 ) {
@@ -87,7 +88,7 @@ fun NotificationCard(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Color.Gray,
                                     modifier = Modifier.clickable {
-                                        println("c:${notification.category} f:${notification.flags} p:${notification.progress} pm:${notification.progressMax} pi:${notification.progressIndeterminate}")
+                                       onClock?.invoke(notification)
                                     }
                                 )
                                 onCopy?.let { copy ->

@@ -12,7 +12,6 @@ import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -41,9 +40,7 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                 post("/notification") {
                     try {
                         val notification = call.receive<NotificationData>()
-                        if (isNotExclude(notification))
-                            notificationManager.addNotification(notification)
-
+                        notificationManager.addNotification(notification)
                         call.respond(mapOf("status" to "success"))
                     } catch (e: Exception) {
                         call.respond(mapOf("status" to "error", "message" to e.message))
@@ -61,7 +58,7 @@ class NotificationServer(private val notificationManager: NotificationManager) {
                 }
 
                 get("/") {
-                    call.respond(mapOf("status" to  "success" ))
+                    call.respond(mapOf("status" to "success"))
                 }
                 get("/clipboard") {
                     sendClipboard()
@@ -184,16 +181,6 @@ class NotificationServer(private val notificationManager: NotificationManager) {
             }
         } catch (e: Exception) {
             call.respond(ClipboardData.createError("Failed to access clipboard: ${e.message}"))
-        }
-    }
-
-    private fun isNotExclude(notification: NotificationData): Boolean {
-        if (notification.appName.lowercase() in listOf("system ui", "واسط کاربری سیستم","سیستم ui")) {
-            println("${notification.packageName} ${notification.appName} is exclude")
-            return false
-        } else {
-            println("${notification.packageName} ${notification.appName} is not exclude")
-            return true
         }
     }
 

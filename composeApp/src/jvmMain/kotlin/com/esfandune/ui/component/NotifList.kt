@@ -54,14 +54,18 @@ fun NotifList(
             }
             items(
                 items = notifs,
-                itemContent = { notification ->
+                itemContent = { notificationCat ->
                     NotificationCard(
-                        notifications = notification,
+                        notifications = notificationCat,
                         modifier = Modifier.animateItem(),
+                        onClock = {notification->
+                            println("${notification.packageName} c:${notification.category} f:${notification.flags} p:${notification.progress} pm:${notification.progressMax} pi:${notification.progressIndeterminate}")
+                            showSnackbar("${notification.packageName} c:${notification.category} f:${notification.flags} p:${notification.progress} pm:${notification.progressMax} pi:${notification.progressIndeterminate}")
+                        },
                         onMarkAsRead = {
                             coroutineScope.launch {
-                                sendReadConfirmation(notification)
-                                notificationManager.markAsRead(notification)
+                                sendReadConfirmation(notificationCat)
+                                notificationManager.markAsRead(notificationCat)
                             }
                         },
                         onCopy = { data ->
