@@ -43,18 +43,19 @@ class ClipboardTileService : TileService() {
         scope.launch {
             try {
                 val clientService = ClientService(settings.serverIp, settings.serverPort)
-                val clipboardData = clientService.getClipboard()
+                val clipboardData = clientService.getClipboard(limitSize = 1_048_576) // 1MB limit
 
                 handler.post {
-                    clipboardData.text?.let { clipboardText ->
-                        val preview =
-                            clipboardText.take(20) + if (clipboardText.length > 20) "..." else ""
-                        showToast("محتوی ذخیره شد: $preview")
-                    } ?: run {
-                        showToast("برای دریافت محتوی غیرمتنی باید برنامه را اجرا نمایید.")
+                    val message = when {
+                        clipboardData.text != null ->
+                            "محتوی ذخیره شد: ${clipboardData.text.take(20).let { if (clipboardData.text.length > 20) "$it..." else it }}"
+                        clipboardData.error?.contains("Content size is too large") == false -> clipboardData.error
+                        else -> "برای دریافت محتوی غیرمتنی از درون برنامه اقدام نمایید."
                     }
-                    updateTileState(Tile.STATE_INACTIVE, "دریافت کلیپ‌بورد")
+                    showToast(message)
                 }
+                updateTileState(Tile.STATE_INACTIVE, "دریافت کلیپ‌بورد")
+
             } catch (e: Exception) {
                 handler.post {
                     showToast("خطا در دریافت کلیپ‌بورد: ${e.message}")

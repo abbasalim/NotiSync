@@ -10,6 +10,7 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
+import io.ktor.client.request.head
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -61,8 +62,21 @@ class ClientService(serverIp: String, serverPort: Int) {
         }
     }
 
-    suspend fun getClipboard(): ClipboardData {
+    suspend fun getClipboard(limitSize:Long?=null): ClipboardData {
         try {
+            if (limitSize!=null) {
+                val contentLength = client.head("$baseUrl/clipboard") {
+                    timeout {
+                        requestTimeoutMillis = 5000
+                        connectTimeoutMillis = 5000
+                    }
+                }.headers["Content-Length"]?.toLongOrNull()
+                Log.d("clipboard", "Content-Length: ${contentLength ?: "unknown"}")
+                if (limitSize < (contentLength ?: 0)){
+                    return ClipboardData(error = "Content size is too large")
+                }
+            }
+
             val clipboardData = client.get("$baseUrl/clipboard") {
                 timeout {
                     requestTimeoutMillis = 5000
