@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 class NotificationForwardingService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private lateinit var notificationService: NotificationService
+    private lateinit var clientService: ClientService
     private lateinit var settingsManager: SettingsManager
 
     companion object {
@@ -43,8 +43,8 @@ class NotificationForwardingService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val settings = settingsManager.getSettings()
         ///چون ممکنه کاربر در تنظیمات اپدیت کنه و این بروز نمیشه
-        notificationService =
-            NotificationService(serverIp = settings.serverIp, serverPort = settings.serverPort)
+        clientService =
+            ClientService(serverIp = settings.serverIp, serverPort = settings.serverPort)
         ///
         if (intent == null) return START_NOT_STICKY
         val packageName = intent.getStringExtra("packageName") ?: ""
@@ -61,7 +61,7 @@ class NotificationForwardingService : Service() {
         serviceScope.launch {
             try {
 
-                val success = notificationService.sendNotification(
+                val success = clientService.sendNotification(
                     NotificationData(
                         title = title,
                         message = message,

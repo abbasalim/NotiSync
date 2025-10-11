@@ -26,7 +26,7 @@ import kotlinx.serialization.json.Json
  * @param serverIp IP address of the desktop application
  * @param serverPort Port number of the desktop application
  */
-class NotificationService(serverIp: String, serverPort: Int) {
+class ClientService(serverIp: String, serverPort: Int) {
     val baseUrl = "http://$serverIp:$serverPort"
     private val client = HttpClient {
         install(ContentNegotiation) {
@@ -81,7 +81,6 @@ class NotificationService(serverIp: String, serverPort: Int) {
     }
 
     suspend fun testConnection(): Boolean {
-        ///todo
         return try {
             val response = client.get(baseUrl).body<Map<String, String>>()
             response["status"] == "success"

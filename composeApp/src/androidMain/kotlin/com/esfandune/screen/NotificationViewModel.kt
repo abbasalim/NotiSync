@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esfandune.model.ClipboardData
 import com.esfandune.model.UiState
-import com.esfandune.service.NotificationService
+import com.esfandune.service.ClientService
 import com.esfandune.setting.SettingsManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -181,9 +181,9 @@ class NotificationViewModel : ViewModel() {
         }
     }
 
-    fun getServer(): NotificationService? {
+    fun getServer(): ClientService? {
         settingsManager?.getSettings()?.let { settings ->
-            return NotificationService(
+            return ClientService(
                 serverIp = settings.serverIp,
                 serverPort = settings.serverPort
             )
