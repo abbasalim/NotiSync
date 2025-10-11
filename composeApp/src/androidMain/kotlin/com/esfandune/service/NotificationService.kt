@@ -19,6 +19,13 @@ import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
+/**3
+ * This class is responsible for communicating with the desktop application
+ * and sending notifications to it.
+ *
+ * @param serverIp IP address of the desktop application
+ * @param serverPort Port number of the desktop application
+ */
 class NotificationService(serverIp: String, serverPort: Int) {
     val baseUrl = "http://$serverIp:$serverPort"
     private val client = HttpClient {

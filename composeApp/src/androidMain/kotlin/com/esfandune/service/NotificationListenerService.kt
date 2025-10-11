@@ -14,7 +14,13 @@ import kotlin.text.category
 import kotlin.toString
 
 class NotificationListenerService : NotificationListenerService() {
-
+    /**
+     * This service listens to system notifications only when connected to WiFi.
+     * When a new notification is posted, this service receives it,
+     * extracts its information such as title, text, and package name,
+     * and then sends this information to the `NotificationForwardingService` for further processing.
+     * The service automatically disables itself when WiFi is disconnected.
+     */
     private lateinit var settingsManager: SettingsManager
 
     override fun onCreate() {

@@ -19,6 +19,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
+/**2
+ * This service is responsible for forwarding notifications to the desktop application.
+ * It listens to incoming notifications from the system and sends them to the desktop application.
+ */
 class NotificationForwardingService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
