@@ -102,8 +102,8 @@ class NotificationForwardingService : Service() {
 
     private fun createForegroundNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("فوروارد نوتیفیکیشن")
-            .setContentText("در حال ارسال نوتیفیکیشن‌ها به دسکتاپ")
+            .setContentTitle("همگام سازی اعلانات")
+            .setContentText("برای اجرا بودن سرویس همگام سازی، طبق قوانین اندروید، این اعلان به صورت دائمی نشان داده می شود.")
             .setSmallIcon(R.drawable.ic_launcher_monochrome)
             .build()
     }
