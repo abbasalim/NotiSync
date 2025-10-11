@@ -1,12 +1,10 @@
 package com.esfandune.tile
 
-import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.Toast
-import com.esfandune.activity.MainActivity
 import com.esfandune.service.ClientService
 import com.esfandune.setting.SettingsManager
 import kotlinx.coroutines.CoroutineScope
@@ -53,14 +51,7 @@ class ClipboardTileService : TileService() {
                             clipboardText.take(20) + if (clipboardText.length > 20) "..." else ""
                         showToast("محتوی ذخیره شد: $preview")
                     } ?: run {
-                        // Open the app's main activity
-                        val intent =
-                            Intent(this@ClipboardTileService, MainActivity::class.java).apply {
-                                flags =
-                                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                putExtra("open_clipboard_screen", true)
-                            }
-                        startActivity(intent)
+                        showToast("برای دریافت محتوی غیرمتنی باید برنامه را اجرا نمایید.")
                     }
                     updateTileState(Tile.STATE_INACTIVE, "دریافت کلیپ‌بورد")
                 }
