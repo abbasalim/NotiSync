@@ -10,6 +10,7 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.esfandune.setting.SettingsManager
+import com.esfandune.util.WiFiStateManager
 import kotlin.text.category
 import kotlin.toString
 
@@ -22,15 +23,21 @@ class NotificationListenerService : NotificationListenerService() {
      * The service automatically disables itself when WiFi is disconnected.
      */
     private lateinit var settingsManager: SettingsManager
+    private lateinit var wifiStateManager: WiFiStateManager
 
     override fun onCreate() {
         super.onCreate()
-        settingsManager = SettingsManager(applicationContext)
+        settingsManager = SettingsManager(this)
+        wifiStateManager = WiFiStateManager(this)
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
 
+        if (wifiStateManager.isWifiConnected.value == false) {
+            Log.d("NotificationListener", "WiFi is not connected, skipping notification")
+            return
+        }
         sbn?.let { notification ->
             val packageName = notification.packageName
             if (packageName == this.packageName) {

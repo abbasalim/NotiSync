@@ -407,7 +407,7 @@ private fun FAB(
         onClick = {
             if (isWifiConnected)
                 viewModel.getClipboard(context)
-            else viewModel.showMessage("به شبکه متصل نیتسید!")
+            else viewModel.showMessage("به شبکه Wi-Fi متصل نیتسید!")
         },
     ) {
         AnimatedContent(viewModel.receivingClipboard.value) {
