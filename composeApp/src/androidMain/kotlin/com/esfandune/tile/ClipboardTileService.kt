@@ -9,11 +9,9 @@ import android.widget.Toast
 import com.esfandune.activity.MainActivity
 import com.esfandune.service.ClientService
 import com.esfandune.setting.SettingsManager
-import com.esfandune.util.NotificationHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 
 class ClipboardTileService : TileService() {
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -35,7 +33,9 @@ class ClipboardTileService : TileService() {
 
         val settings = SettingsManager(this).getSettings()
         if (settings.serverIp.isEmpty()) {
-            showNotification("خطا", "آدرس سرور تنظیم نشده است")
+            handler.post {
+                showToast("آدرس سرور تنظیم نشده است")
+            }
             return
         }
 
@@ -51,11 +51,7 @@ class ClipboardTileService : TileService() {
                     clipboardData.text?.let { clipboardText ->
                         val preview =
                             clipboardText.take(20) + if (clipboardText.length > 20) "..." else ""
-                        Toast.makeText(
-                            this@ClipboardTileService,
-                            "محتوی ذخیره شد: $preview",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showToast("محتوی ذخیره شد: $preview")
                     } ?: run {
                         // Open the app's main activity
                         val intent =
@@ -70,7 +66,7 @@ class ClipboardTileService : TileService() {
                 }
             } catch (e: Exception) {
                 handler.post {
-                    showNotification("خطا", "خطا در دریافت کلیپ‌بورد: ${e.message}")
+                    showToast("خطا در دریافت کلیپ‌بورد: ${e.message}")
                     updateTileState(Tile.STATE_UNAVAILABLE, "خطا در اتصال")
                 }
             }
@@ -84,11 +80,11 @@ class ClipboardTileService : TileService() {
         tile.updateTile()
     }
 
-    private fun showNotification(title: String, message: String) {
-        NotificationHelper.showClipboardNotification(
-            this,
-            title,
-            message
-        )
+    private fun showToast(message: String) {
+        Toast.makeText(
+            this@ClipboardTileService,
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }
