@@ -75,8 +75,8 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationForwarderScreen() {
-    val viewModel: NotificationViewModel = viewModel()
+fun MainScreen() {
+    val viewModel: MainScreenViewModel = viewModel()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -399,7 +399,7 @@ fun NotificationForwarderScreen() {
 
 @Composable
 private fun FAB(
-    viewModel: NotificationViewModel
+    viewModel: MainScreenViewModel
 ) {
     val isWifiConnected = rememberWiFiState().value
     val context = LocalContext.current
