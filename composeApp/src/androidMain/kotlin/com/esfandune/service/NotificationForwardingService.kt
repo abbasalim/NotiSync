@@ -9,6 +9,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.esfandune.R
 import com.esfandune.model.NotificationCategory
 import com.esfandune.model.NotificationData
 import com.esfandune.setting.SettingsManager
@@ -97,6 +98,15 @@ class NotificationForwardingService : Service() {
         serviceScope.cancel()
     }
 
+
+
+    private fun createForegroundNotification(): Notification {
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("فوروارد نوتیفیکیشن")
+            .setContentText("در حال ارسال نوتیفیکیشن‌ها به دسکتاپ")
+            .setSmallIcon(R.drawable.ic_launcher_monochrome)
+            .build()
+    }
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
@@ -105,16 +115,7 @@ class NotificationForwardingService : Service() {
         ).apply {
             description = "Service for forwarding notifications to desktop"
         }
-
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannel(channel)
-    }
-
-    private fun createForegroundNotification(): Notification {
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("فوروارد نوتیفیکیشن")
-            .setContentText("در حال ارسال نوتیفیکیشن‌ها به دسکتاپ")
-//            .setSmallIcon(R.drawable.ic_dialog_info)
-            .build()
     }
 }
