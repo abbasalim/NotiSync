@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.composeHotReload)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.googleServices)
+    id("com.google.firebase.crashlytics")
 }
 
 kotlin {
@@ -34,6 +35,7 @@ kotlin {
             implementation(libs.camerax.view)
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:34.3.0"))
             implementation(libs.firebase.analytics)
+            implementation(libs.firebase.crashlytics.ndk)
 
         }
         commonMain.dependencies {
@@ -106,14 +108,7 @@ dependencies {
     debugImplementation(compose.uiTooling)
 }
 
-
-// برای گرفتن خروجی دسکتاپ، از دستور زیر در ترمینال استفاده کنید:
-// ./gradlew package<Format>
-// به عنوان مثال، برای گرفتن خروجی Dmg از دستور زیر استفاده کنید:
-// ./gradlew packageDmg
-// همچنین می‌توانید از دستور زیر برای گرفتن تمام خروجی‌ها استفاده کنید:
-// ./gradlew packageDistribution
-
+// export dmg : ./gradlew packageDmg
 compose.desktop {
     application {
         mainClass = "com.esfandune.MainKt"

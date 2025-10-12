@@ -8,5 +8,5 @@ plugins {
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.googleServices) apply false
-
+    id("com.google.firebase.crashlytics") version "3.0.6" apply false
 }
