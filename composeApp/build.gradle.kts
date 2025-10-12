@@ -36,6 +36,7 @@ kotlin {
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:34.3.0"))
             implementation(libs.firebase.analytics)
             implementation(libs.firebase.crashlytics.ndk)
+            implementation (libs.customactivityoncrash)
 
         }
         commonMain.dependencies {
