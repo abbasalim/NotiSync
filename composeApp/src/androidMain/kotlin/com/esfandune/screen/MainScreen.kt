@@ -118,7 +118,7 @@ fun MainScreen() {
     LaunchedEffect(uiState.serverAddress) {
         viewModel.newServerIp.value = ""
         viewModel.newServerPort.value = "8080"
-        if (viewModel.newServerIp.value.isBlank())
+        if (uiState.serverAddress.isEmpty())
             viewModel.showServerSettings.value = true
     }
 
@@ -164,7 +164,7 @@ fun MainScreen() {
                 ButtonCard(
                     modifier = Modifier
                         .weight(1f)
-                        .scale(if (viewModel.newServerIp.value.isBlank()) scale else 1f),
+                        .scale(if (viewModel.uiState.collectAsState().value.serverAddress.isEmpty()) scale else 1f),
                     title = "راهنمای اتصال",
                     status = "مشاهده",
                     icon = Icons.AutoMirrored.Filled.Help,
