@@ -45,7 +45,7 @@ class NotificationForwardingService : Service() {
         val settings = settingsManager.getSettings()
         ///چون ممکنه کاربر در تنظیمات اپدیت کنه و این بروز نمیشه
         clientService =
-            ClientService(serverIp = settings.serverIp, serverPort = settings.serverPort)
+            ClientService(settings.servers)
         ///
         if (intent == null) return START_NOT_STICKY
         val packageName = intent.getStringExtra("packageName") ?: ""

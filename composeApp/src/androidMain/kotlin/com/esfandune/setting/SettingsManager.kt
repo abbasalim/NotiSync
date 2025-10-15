@@ -11,24 +11,26 @@ class SettingsManager(context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
 
     fun saveSettings(settings: AppSettings) {
-        prefs.edit { // Using lambda with 'edit' for conciseness
-            putString("server_ip", settings.serverIp)
-            putInt("server_port", settings.serverPort)
+        prefs.edit {
+            putStringSet("servers", settings.servers)
             putInt("notifications_sent", settings.notificationsSent)
             putString("last_connection", settings.lastConnectionTime)
-            putStringSet("excluded_packages", settings.excludedPackages) // Save excluded packages
+            putStringSet("excluded_packages", settings.excludedPackages)
+
         }
         println("Settings saved: $settings")
     }
 
     fun getSettings(): AppSettings {
-        return AppSettings(
-            serverIp = prefs.getString("server_ip", "") ?: "",
-            serverPort = prefs.getInt("server_port", 8080),
+
+        val settings = AppSettings(
+            servers = prefs.getStringSet("servers", emptySet()) ?: emptySet(),
             notificationsSent = prefs.getInt("notifications_sent", 0),
             lastConnectionTime = prefs.getString("last_connection", "") ?: "",
-            excludedPackages = prefs.getStringSet("excluded_packages", emptySet()) ?: emptySet() // Retrieve excluded packages
+            excludedPackages = prefs.getStringSet("excluded_packages", emptySet()) ?: emptySet()
         )
+        println("Settings saved: $settings")
+        return settings
     }
 
     fun saveExcludedPackages(excludedPackages: Set<String>) {

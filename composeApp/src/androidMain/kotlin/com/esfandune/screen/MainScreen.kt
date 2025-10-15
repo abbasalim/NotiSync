@@ -9,6 +9,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,10 +22,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.QrCode
@@ -49,6 +53,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,6 +76,7 @@ import com.esfandune.ui.ButtonCard
 import com.esfandune.ui.HelpDialog
 import com.esfandune.ui.StatItem
 import com.esfandune.util.rememberWiFiState
+import java.util.regex.Pattern
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,6 +87,11 @@ fun MainScreen() {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.uiState.collectAsState()
+
+    val IP_ADDRESS_PATTERN: Pattern = Pattern.compile(
+        "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+    )
+    val isValidIp = remember(viewModel.newServerIp.value) { IP_ADDRESS_PATTERN.matcher(viewModel.newServerIp.value).matches() }
 
     val infiniteTransition = rememberInfiniteTransition()
     val scale by infiniteTransition.animateFloat(
@@ -104,10 +115,10 @@ fun MainScreen() {
         return
     }
 
-    LaunchedEffect(uiState.serverIp, uiState.serverPort) {
-        viewModel.serverIp.value = uiState.serverIp
-        viewModel.serverPort.value = uiState.serverPort.toString()
-        if (viewModel.serverIp.value.isBlank())
+    LaunchedEffect(uiState.serverAddress) {
+        viewModel.newServerIp.value = ""
+        viewModel.newServerPort.value = "8080"
+        if (viewModel.newServerIp.value.isBlank())
             viewModel.showServerSettings.value = true
     }
 
@@ -153,7 +164,7 @@ fun MainScreen() {
                 ButtonCard(
                     modifier = Modifier
                         .weight(1f)
-                        .scale(if (viewModel.serverIp.value.isBlank()) scale else 1f),
+                        .scale(if (viewModel.newServerIp.value.isBlank()) scale else 1f),
                     title = "راهنمای اتصال",
                     status = "مشاهده",
                     icon = Icons.AutoMirrored.Filled.Help,
@@ -179,6 +190,11 @@ fun MainScreen() {
 
             // Server Settings Section
             AnimatedVisibility(viewModel.showServerSettings.value) {
+                val addressList = remember { mutableStateListOf<String>() }
+                LaunchedEffect(Unit) {
+                    addressList.addAll(uiState.serverAddress)
+                }
+
                 OutlinedCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -207,24 +223,6 @@ fun MainScreen() {
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            OutlinedTextField(
-                                value = viewModel.serverIp.value,
-                                onValueChange = { viewModel.serverIp.value = it },
-                                label = { Text("آدرس IP سرور") },
-                                modifier = Modifier.weight(2f),
-                                singleLine = true,
-                                shape = RoundedCornerShape(12.dp)
-                            )
-
-                            OutlinedTextField(
-                                value = viewModel.serverPort.value,
-                                onValueChange = { viewModel.serverPort.value = it },
-                                label = { Text("پورت سرور") },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                modifier = Modifier.weight(1f),
-                                singleLine = true,
-                                shape = RoundedCornerShape(12.dp)
-                            )
 
                             Button(
                                 onClick = { viewModel.showQrScanner.value = true },
@@ -240,25 +238,79 @@ fun MainScreen() {
                                     contentDescription = "اسکن QR کد"
                                 )
                             }
+
+                            OutlinedTextField(
+                                value = viewModel.newServerIp.value,
+                                onValueChange = {
+                                    viewModel.newServerIp.value = it.filter { char ->
+                                        char.isDigit() || char == '.'
+                                    }
+                                },
+                                label = { Text("IP سرور") },
+                                modifier = Modifier.weight(2f),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                isError = !isValidIp && viewModel.newServerIp.value.isNotEmpty(),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+
+                            OutlinedTextField(
+                                value = viewModel.newServerPort.value,
+                                onValueChange = {
+                                    viewModel.newServerPort.value =
+                                        it.filter { char -> char.isDigit() }
+                                },
+                                label = { Text("پورت سرور") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                modifier = Modifier.weight(1f),
+                                singleLine = true,
+                                shape = RoundedCornerShape(12.dp)
+                            )
+
+
+                            Icon(
+                                Icons.Filled.Add,
+                                "add",
+                                modifier = Modifier.clickable {
+                                    val newAddress =
+                                        "${viewModel.newServerIp.value}:${viewModel.newServerPort.value.ifBlank { "8080" }}"
+                                    if (viewModel.newServerIp.value.isNotBlank()) {
+                                        if(isValidIp){
+                                            if (!addressList.contains(newAddress)) {
+                                                addressList.add(newAddress)
+                                                viewModel.saveSettings(addressList)
+                                            } else {
+                                                viewModel.showMessage("آدرس تکراری است!")
+                                            }
+                                        } else {
+                                            viewModel.showMessage("فرمت IP وارد شده صحیح نیست!")
+                                        }
+                                    } else {
+                                        viewModel.showMessage("آدرس و پورت را وارد کنید!")
+                                    }
+
+                                })
                         }
 
-                        Button(
-                            onClick = {
-                                viewModel.saveSettings(
-                                    serverIp = viewModel.serverIp.value,
-                                    serverPort = viewModel.serverPort.value.toIntOrNull() ?: 8080
-                                )
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary
-                            )
-                        ) {
-                            Text("ذخیره تنظیمات سرور")
+                        addressList.forEach { address ->
+                            OutlinedCard {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(6.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(address)
+                                    Icon(
+                                        Icons.Filled.Delete,
+                                        "delete",
+                                        modifier = Modifier.clickable {
+                                            addressList.remove(address)
+                                            viewModel.saveSettings(addressList)
+                                        })
+                                }
+                            }
                         }
                     }
                 }
@@ -382,8 +434,8 @@ fun MainScreen() {
         QrScannerDialog(
             onDismiss = { viewModel.showQrScanner.value = false },
             onResult = { ip, port ->
-                viewModel.serverIp.value = ip
-                viewModel.serverPort.value = port
+                viewModel.newServerIp.value = ip
+                viewModel.newServerPort.value = port
                 viewModel.showQrScanner.value = false
             }
         )

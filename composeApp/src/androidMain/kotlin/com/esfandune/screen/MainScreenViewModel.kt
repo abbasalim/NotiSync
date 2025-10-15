@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esfandune.model.ClipboardData
@@ -24,8 +25,9 @@ class MainScreenViewModel : ViewModel() {
     var receivingClipboard = mutableStateOf(false)
     val lastClipboardData = mutableStateOf<ClipboardData?>(null)
     val showHelDialog = mutableStateOf(false)
-    val serverIp = mutableStateOf("")
-    val serverPort = mutableStateOf("")
+    val newServerIp = mutableStateOf("")
+    val newServerPort = mutableStateOf("")
+
     val showAppSelectorDialog = mutableStateOf(false)
     val showServerSettings = mutableStateOf(false)
     val showQrScanner = mutableStateOf(false)
@@ -43,31 +45,27 @@ class MainScreenViewModel : ViewModel() {
             settingsManager?.let { manager ->
                 val settings = manager.getSettings()
                 _uiState.value = _uiState.value.copy(
-                    serverIp = settings.serverIp,
-                    serverPort = settings.serverPort,
+                    serverAddress = settings.servers.toList(),
                     notificationsSent = settings.notificationsSent,
                     lastConnectionTime = settings.lastConnectionTime,
-                    excludedPackages = settings.excludedPackages // Load excluded packages
+                    excludedPackages = settings.excludedPackages
                 )
             }
         }
     }
 
-    fun saveSettings(serverIp: String, serverPort: Int) {
+    fun saveSettings(addressList: List<String>) {
         viewModelScope.launch {
             settingsManager?.let { manager ->
                 val currentSettings = manager.getSettings()
-                // Preserve excludedPackages when saving other settings
                 val newSettings = currentSettings.copy(
-                    serverIp = serverIp,
-                    serverPort = serverPort
+                    servers = addressList.toSet(),
                 )
-                manager.saveSettings(newSettings) // This now saves all fields of AppSettings
+                manager.saveSettings(newSettings)
 
                 _uiState.value = _uiState.value.copy(
-                    serverIp = serverIp,
-                    serverPort = serverPort,
-                    statusMessage = "تنظیمات ذخیره شد"
+                    statusMessage = "تنظیمات ذخیره شد",
+                    serverAddress = addressList
                 )
                 testConnection()
             } ?: run {
@@ -81,7 +79,7 @@ class MainScreenViewModel : ViewModel() {
     fun testConnection() {
         getServer()?.let { notificationService ->
             viewModelScope.launch {
-                if (notificationService.testConnection()) {
+                if (notificationService.testConnection().count { it.second } > 0) {
                     _uiState.value = _uiState.value.copy(statusMessage = "اتصال موفقیت آمیز")
                     showServerSettings.value = false
                 } else _uiState.value = _uiState.value.copy(statusMessage = "اتصال ناموفق")
@@ -106,12 +104,6 @@ class MainScreenViewModel : ViewModel() {
         }
     }
 
-
-    fun refreshStats() { // Renamed from refreshUiState to be more specific, and now reloads all settings
-        settingsManager?.let {
-            loadSettingsFromManager()
-        }
-    }
 
     fun clearStatusMessage() {
         _uiState.value = _uiState.value.copy(statusMessage = null)
@@ -183,10 +175,7 @@ class MainScreenViewModel : ViewModel() {
 
     fun getServer(): ClientService? {
         settingsManager?.getSettings()?.let { settings ->
-            return ClientService(
-                serverIp = settings.serverIp,
-                serverPort = settings.serverPort
-            )
+            return ClientService(settings.servers)
         }
         return null
     }

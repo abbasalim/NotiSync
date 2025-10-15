@@ -30,7 +30,7 @@ class ClipboardTileService : TileService() {
         super.onClick()
 
         val settings = SettingsManager(this).getSettings()
-        if (settings.serverIp.isEmpty()) {
+        if (settings.servers.isEmpty()) {
             handler.post {
                 showToast("آدرس سرور تنظیم نشده است")
             }
@@ -42,7 +42,7 @@ class ClipboardTileService : TileService() {
 
         scope.launch {
             try {
-                val clientService = ClientService(settings.serverIp, settings.serverPort)
+                val clientService = ClientService(settings.servers)
                 val clipboardData = clientService.getClipboard(limitSize = 1_048_576) // 1MB limit
 
                 handler.post {

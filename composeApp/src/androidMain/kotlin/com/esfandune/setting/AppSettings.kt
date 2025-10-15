@@ -1,9 +1,10 @@
 package com.esfandune.setting
 
 data class AppSettings(
-    val serverIp: String = "",
-    val serverPort: Int = 8080,
+//    val serverIp: String = "",
+//    val serverPort: Int = 8080,
     val notificationsSent: Int = 0,
     val lastConnectionTime: String = "",
-    val excludedPackages: Set<String> = emptySet()
+    val excludedPackages: Set<String> = emptySet(),
+    val servers: Set<String>
 )

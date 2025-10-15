@@ -18,17 +18,19 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-/**3
+/**
  * This class is responsible for communicating with the desktop application
  * and sending notifications to it.
  *
- * @param serverIp IP address of the desktop application
- * @param serverPort Port number of the desktop application
+ * @param serverAddress Set of IP addresses of the desktop applications
  */
-class ClientService(serverIp: String, serverPort: Int) {
-    val baseUrl = "http://$serverIp:$serverPort"
+class ClientService(private val serverAddress: Set<String>) {
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -43,64 +45,79 @@ class ClientService(serverIp: String, serverPort: Int) {
 
     suspend fun sendNotification(
         data: NotificationData
-    ): Boolean {
-        return try {
-            val response: HttpResponse = client.post("$baseUrl/notification") {
-                contentType(ContentType.Application.Json)
-                setBody(data)
-                timeout {
-                    requestTimeoutMillis = 5000
-                    connectTimeoutMillis = 5000
+    ): Boolean = withContext(Dispatchers.IO) {
+        if (serverAddress.isEmpty()) return@withContext false
+
+        serverAddress.map { address ->
+            async {
+                try {
+                    val response: HttpResponse = client.post("http://$address/notification") {
+                        contentType(ContentType.Application.Json)
+                        setBody(data)
+                        timeout {
+                            requestTimeoutMillis = 2000
+                        }
+                    }
+                    response.status.isSuccess()
+                } catch (e: Exception) {
+                    Log.e("sendNotification", "Failed to send notification to $address", e)
+                    false
                 }
             }
-
-            response.status.isSuccess()
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
+        }.awaitAll().any { it }
     }
 
-    suspend fun getClipboard(limitSize:Long?=null): ClipboardData {
-        try {
-            if (limitSize!=null) {
-                val contentLength = client.head("$baseUrl/clipboard") {
+    suspend fun getClipboard(limitSize: Long? = null): ClipboardData {
+        if (serverAddress.isEmpty()) return ClipboardData(error = "No server address configured")
+
+        for (address in serverAddress) {
+            try {
+                val baseUrl = "http://$address"
+                if (limitSize != null) {
+                    val contentLength = client.head("$baseUrl/clipboard") {
+                        timeout {
+                            requestTimeoutMillis = 2000
+                        }
+                    }.headers["Content-Length"]?.toLongOrNull()
+                    Log.d("clipboard", "Content-Length from $address: ${contentLength ?: "unknown"}")
+                    if (limitSize < (contentLength ?: 0)) {
+                        Log.w("clipboard", "Content from $address is too large, trying next.")
+                        continue
+                    }
+                }
+
+                val clipboardData = client.get("$baseUrl/clipboard") {
                     timeout {
                         requestTimeoutMillis = 5000
-                        connectTimeoutMillis = 5000
                     }
-                }.headers["Content-Length"]?.toLongOrNull()
-                Log.d("clipboard", "Content-Length: ${contentLength ?: "unknown"}")
-                if (limitSize < (contentLength ?: 0)){
-                    return ClipboardData(error = "Content size is too large")
+                }.body<ClipboardData>()
+
+                if (clipboardData.text?.isNotEmpty() == true) {
+                    Log.d("clipboard", "Received clipboard data from $address")
+                    return clipboardData
                 }
+            } catch (e: Exception) {
+                Log.e("clipboard", "Failed to get clipboard from $address", e)
             }
-
-            val clipboardData = client.get("$baseUrl/clipboard") {
-                timeout {
-                    requestTimeoutMillis = 5000
-                    connectTimeoutMillis = 5000
-                }
-            }.body<ClipboardData>()
-
-            Log.d("clipboard", "Received clipboard data: $clipboardData")
-            return clipboardData
-
-        } catch (e: Exception) {
-            val error = "Error: ${e.message ?: "Unknown error"}"
-            Log.e("clipboard", error, e)
-            return ClipboardData(error = error)
         }
+        return ClipboardData(error = "Failed to get clipboard from any server")
     }
 
-    suspend fun testConnection(): Boolean {
-        return try {
-            val response = client.get(baseUrl).body<Map<String, String>>()
-            response["status"] == "success"
-        } catch (e: Exception) {
-            Log.e("ConnectionTest", "Failed to connect to server", e)
-            false
-        }
+    suspend fun testConnection(): List<Pair<String, Boolean>> = withContext(Dispatchers.IO) {
+        if (serverAddress.isEmpty()) return@withContext emptyList()
+
+        serverAddress.map { address ->
+            async {
+                val isConnected = try {
+                    val response = client.get("http://$address").body<Map<String, String>>()
+                    response["status"] == "success"
+                } catch (e: Exception) {
+                    Log.e("ConnectionTest", "Failed to connect to server http://$address", e)
+                    false
+                }
+                address to isConnected
+            }
+        }.awaitAll()
     }
 }
+
