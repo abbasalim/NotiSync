@@ -271,7 +271,9 @@ fun MainScreen() {
                             Icon(
                                 Icons.Filled.Add,
                                 "add",
-                                modifier = Modifier.clickable {
+                                modifier = Modifier
+                                    .scale(if (isValidIp) (scale*1.2f) else 1f)
+                                    .clickable {
                                     val newAddress =
                                         "${viewModel.newServerIp.value}:${viewModel.newServerPort.value.ifBlank { "8080" }}"
                                     if (viewModel.newServerIp.value.isNotBlank()) {
