@@ -79,7 +79,10 @@ class ClientService(private val serverAddress: Set<String>) {
                             requestTimeoutMillis = 2000
                         }
                     }.headers["Content-Length"]?.toLongOrNull()
-                    Log.d("clipboard", "Content-Length from $address: ${contentLength ?: "unknown"}")
+                    Log.d(
+                        "clipboard",
+                        "Content-Length from $address: ${contentLength ?: "unknown"}"
+                    )
                     if (limitSize < (contentLength ?: 0)) {
                         Log.w("clipboard", "Content from $address is too large, trying next.")
                         continue
@@ -103,21 +106,41 @@ class ClientService(private val serverAddress: Set<String>) {
         return ClipboardData(error = "Failed to get clipboard from any server")
     }
 
-    suspend fun testConnection(): List<Pair<String, Boolean>> = withContext(Dispatchers.IO) {
-        if (serverAddress.isEmpty()) return@withContext emptyList()
-
-        serverAddress.map { address ->
-            async {
-                val isConnected = try {
-                    val response = client.get("http://$address").body<Map<String, String>>()
-                    response["status"] == "success"
-                } catch (e: Exception) {
-                    Log.e("ConnectionTest", "Failed to connect to server http://$address", e)
-                    false
-                }
-                address to isConnected
+    //server -> null => ALl
+    suspend fun testConnection(server: String?): List<Pair<String, Boolean>> =
+        withContext(Dispatchers.IO) {
+            if (server == null && serverAddress.isEmpty()) return@withContext emptyList()
+            if (server != null) {
+                    val isConnected = try {
+                        val response = client.get("http://$server").body<Map<String, String>>()
+                        response["status"] == "success"
+                    } catch (e: Exception) {
+                        Log.e(
+                            "ConnectionTest",
+                            "Failed to connect to server http://$server",
+                            e
+                        )
+                        false
+                    }
+                    listOf(server to isConnected)
+            } else {
+                serverAddress.map { address ->
+                    async {
+                        val isConnected = try {
+                            val response = client.get("http://$address").body<Map<String, String>>()
+                            response["status"] == "success"
+                        } catch (e: Exception) {
+                            Log.e(
+                                "ConnectionTest",
+                                "Failed to connect to server http://$address",
+                                e
+                            )
+                            false
+                        }
+                        address to isConnected
+                    }
+                }.awaitAll()
             }
-        }.awaitAll()
-    }
+        }
 }
 

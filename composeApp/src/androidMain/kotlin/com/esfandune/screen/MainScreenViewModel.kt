@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esfandune.model.ClipboardData
@@ -53,8 +52,8 @@ class MainScreenViewModel : ViewModel() {
             }
         }
     }
-
-    fun saveSettings(addressList: List<String>) {
+//testForAddressIndex >>> if want test an new connection, must not null
+    fun saveSettings(addressList: List<String>, testForAddressIndex: Int? = null) {
         viewModelScope.launch {
             settingsManager?.let { manager ->
                 val currentSettings = manager.getSettings()
@@ -67,7 +66,9 @@ class MainScreenViewModel : ViewModel() {
                     statusMessage = "تنظیمات ذخیره شد",
                     serverAddress = addressList
                 )
-                testConnection()
+                testForAddressIndex?.let {
+                    testConnection(addressList.getOrNull(it))
+                }
             } ?: run {
                 _uiState.value = _uiState.value.copy(
                     statusMessage = "خطا: SettingsManager مقداردهی نشده"
@@ -76,10 +77,10 @@ class MainScreenViewModel : ViewModel() {
         }
     }
 
-    fun testConnection() {
+    fun testConnection(server: String?) {
         getServer()?.let { notificationService ->
             viewModelScope.launch {
-                if (notificationService.testConnection().count { it.second } > 0) {
+                if (notificationService.testConnection(server).count { it.second } > 0) {
                     _uiState.value = _uiState.value.copy(statusMessage = "اتصال موفقیت آمیز")
                     showServerSettings.value = false
                 } else _uiState.value = _uiState.value.copy(statusMessage = "اتصال ناموفق")

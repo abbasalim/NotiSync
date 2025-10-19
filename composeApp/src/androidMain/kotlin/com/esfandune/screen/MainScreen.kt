@@ -279,8 +279,8 @@ fun MainScreen() {
                                     if (viewModel.newServerIp.value.isNotBlank()) {
                                         if(isValidIp){
                                             if (!addressList.contains(newAddress)) {
-                                                addressList.add(newAddress)
-                                                viewModel.saveSettings(addressList)
+                                                addressList.add(0,newAddress)
+                                                viewModel.saveSettings(addressList, testForAddressIndex = 0)
                                             } else {
                                                 viewModel.showMessage("آدرس تکراری است!")
                                             }
