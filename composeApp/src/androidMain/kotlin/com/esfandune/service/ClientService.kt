@@ -88,7 +88,7 @@ class ClientService(private val serverAddress: Set<String>) {
 
                 val clipboardData = client.get("$baseUrl/clipboard") {
                     timeout {
-                        requestTimeoutMillis = 5000
+                        requestTimeoutMillis = 2000
                     }
                 }.body<ClipboardData>()
 
