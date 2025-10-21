@@ -92,7 +92,7 @@ fun HelpDialog(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = " در برنامه موبایل، برروی تنظیمات زده و علامت بارکد را لمس کنید تا دوربین باز شده و آن را جلو بارکد قرار دهید. بعد از تکمیل آی پی و پورت برروی ذخیره تنظیمات کلیک نمایید.",
+                    text = " در برنامه موبایل، برروی تنظیمات زده و علامت بارکد را لمس کنید تا دوربین باز شده و آن را جلو بارکد قرار دهید. بعد از تکمیل آی پی و پورت برروی علامت (+) جهت ذخیره کلیک نمایید.",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
