@@ -22,6 +22,7 @@ import java.awt.datatransfer.DataFlavor
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.net.BindException
 import java.nio.file.Files
 import java.util.Base64
 import javax.imageio.ImageIO
@@ -30,43 +31,60 @@ class NotificationServer(private val notificationManager: NotificationManager) {
     private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? =
         null
 
-    fun start(port: Int = 8080) {
-        server = embeddedServer(Netty, port = port) {
-            install(ContentNegotiation) {
-                json()
-            }
+    fun start(port: Int = 8080): Int? {
+        var currentPort = port
+        val maxAttempts = 20
+        for (attempt in 1..maxAttempts) {
+            try {
+                server = embeddedServer(Netty, port = currentPort) {
+                    install(ContentNegotiation) {
+                        json()
+                    }
 
-            routing {
-                post("/notification") {
-                    try {
-                        val notification = call.receive<NotificationData>()
-                        notificationManager.addNotification(notification)
-                        call.respond(mapOf("status" to "success"))
-                    } catch (e: Exception) {
-                        call.respond(mapOf("status" to "error", "message" to e.message))
+                    routing {
+                        post("/notification") {
+                            try {
+                                val notification = call.receive<NotificationData>()
+                                notificationManager.addNotification(notification)
+                                call.respond(mapOf("status" to "success"))
+                            } catch (e: Exception) {
+                                call.respond(mapOf("status" to "error", "message" to e.message))
+                            }
+                        }
+
+                        post("/mark-read") {
+                            try {
+                                val notification = call.receive<NotificationData>()
+                                val removed = notificationManager.markAsRead(notification)
+                                call.respond(mapOf("status" to if (removed) "success" else "not_found"))
+                            } catch (e: Exception) {
+                                call.respond(mapOf("status" to "error", "message" to e.message))
+                            }
+                        }
+
+                        get("/") {
+                            call.respond(mapOf("status" to "success"))
+                        }
+                        get("/clipboard") {
+                            sendClipboard()
+                        }
                     }
                 }
-
-                post("/mark-read") {
-                    try {
-                        val notification = call.receive<NotificationData>()
-                        val removed = notificationManager.markAsRead(notification)
-                        call.respond(mapOf("status" to if (removed) "success" else "not_found"))
-                    } catch (e: Exception) {
-                        call.respond(mapOf("status" to "error", "message" to e.message))
-                    }
-                }
-
-                get("/") {
-                    call.respond(mapOf("status" to "success"))
-                }
-                get("/clipboard") {
-                    sendClipboard()
-                }
+                server?.start(wait = false)
+                println("Server started on port $currentPort")
+                return  currentPort// Success
+            } catch (e: BindException) {
+                println("Port $currentPort is busy, trying next port...")
+                server?.stop(100, 500) // Gracefully stop
+                currentPort++
+            } catch (e: Exception) {
+                println("An unexpected error occurred while starting the server: ${e.message}")
+                e.printStackTrace()
+                return null// Exit on other errors
             }
         }
-        server?.start(wait = false)
-        println("Server started on port $port")
+        println("Failed to start server after $maxAttempts attempts.")
+        return null
     }
 
     private suspend fun RoutingContext.sendClipboard() {

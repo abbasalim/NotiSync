@@ -44,7 +44,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun MainApp(notificationManager: NotificationManager) {
+fun MainApp(notificationManager: NotificationManager,port:Int) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedPackage by remember { mutableStateOf<String?>(null) }
@@ -134,7 +134,7 @@ fun MainApp(notificationManager: NotificationManager) {
                     .padding(padding)
                     .padding(16.dp)
             ) {
-                ConnectCardInfo()
+                ConnectCardInfo(port = port)
                 FilterApps()
                 NotifList(
                     notificationManager,

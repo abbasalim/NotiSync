@@ -1,5 +1,6 @@
 package com.esfandune
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,8 @@ fun main() = application {
     val notificationManager = remember { NotificationManager() }
     val server = remember { NotificationServer(notificationManager) }
     val isOpen = remember { mutableStateOf(true) }
+    val port = remember { mutableStateOf<Int?>(null) }
+
 
     // Set up system notification callback
     LaunchedEffect(notificationManager) {
@@ -44,7 +47,7 @@ fun main() = application {
     }
 
     LaunchedEffect(Unit) {
-        server.start()
+        port.value = server.start()
     }
 
     DisposableEffect(Unit) {
@@ -78,7 +81,12 @@ fun main() = application {
                 size = DpSize(500.dp, 800.dp)
             )
         ) {
-            MainApp(notificationManager)
+            val currentPort = port.value
+            if (currentPort != null) {
+                MainApp(notificationManager, currentPort)
+            } else {
+                Text("Loading...")
+            }
         }
     }
 }

@@ -23,11 +23,11 @@ import com.esfandune.ui.QRCodeDialog
 import com.esfandune.util.getDeviceIp
 
 @Composable
-fun ConnectCardInfo() {
+fun ConnectCardInfo(port:Int) {
     var showQRDialog by remember { mutableStateOf(false) }
     if (showQRDialog) {
         QRCodeDialog(
-            url = "http://${getDeviceIp()}:8080",
+            url = "http://${getDeviceIp()}:$port",
             onDismiss = { showQRDialog = false }
         )
     }
@@ -44,7 +44,7 @@ fun ConnectCardInfo() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "http://${getDeviceIp()}:8080",
+                text = "http://${getDeviceIp()}:$port",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
