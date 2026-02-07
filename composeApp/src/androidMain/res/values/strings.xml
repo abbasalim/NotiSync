@@ -45,6 +45,9 @@
     <string name="permissions_required_title">Required permissions</string>
     <string name="request_permissions">Request permissions</string>
     <string name="permissions_intro">To use all features, please approve the permissions below:</string>
+    <string name="app_language_section_title">App language / زبان برنامه</string>
+    <string name="app_language_section_desc">Tap the button to open the system App Language screen. Choose English or Persian.\n\nبرای تغییر زبان برنامه، دکمه زیر را بزنید تا تنظیمات «زبان برنامه» باز شود. زبان فارسی یا انگلیسی را انتخاب کنید.</string>
+    <string name="app_language_button">Change app language</string>
     <string name="notif_permission_name">Notification access</string>
     <string name="notif_permission_desc">To show received notifications</string>
     <string name="background_permission_name">Background activity</string>

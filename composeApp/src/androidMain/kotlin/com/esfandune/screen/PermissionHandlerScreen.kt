@@ -3,6 +3,7 @@ package com.esfandune.screen
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -194,6 +195,66 @@ fun PermissionHandlerScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.app_language_section_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Text(
+                            text = stringResource(R.string.app_language_section_desc),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Button(
+                            onClick = {
+                                val appDetailsIntent =
+                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.parse("package:${context.packageName}")
+                                    }
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    val localeIntent =
+                                        Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
+                                            putExtra(
+                                                Settings.EXTRA_APP_PACKAGE,
+                                                context.packageName
+                                            )
+                                        }
+                                    val canOpenLocale =
+                                        localeIntent.resolveActivity(context.packageManager) != null
+                                    try {
+                                        if (canOpenLocale) {
+                                            context.startActivity(localeIntent)
+                                        } else {
+                                            context.startActivity(appDetailsIntent)
+                                        }
+                                    } catch (_: Exception) {
+                                        context.startActivity(appDetailsIntent)
+                                    }
+                                } else {
+                                    context.startActivity(appDetailsIntent)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(stringResource(R.string.app_language_button))
+                        }
+                    }
+                }
+            }
 
             items(requiredPermissions) { permission ->
                 val isGranted = permissionStates.getOrDefault(permission.permission, false)
@@ -310,4 +371,3 @@ private fun PermissionItemCard(
         }
     }
 }
-
