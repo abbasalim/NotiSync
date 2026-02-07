@@ -31,6 +31,11 @@ import kotlinx.serialization.json.Json
  * @param serverAddress Set of IP addresses of the desktop applications
  */
 class ClientService(private val serverAddress: Set<String>) {
+    companion object {
+        const val ERROR_NO_SERVER_CONFIGURED = "No server address configured"
+        const val ERROR_CLIPBOARD_FETCH_FAILED = "Failed to get clipboard from any server"
+    }
+
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -68,7 +73,7 @@ class ClientService(private val serverAddress: Set<String>) {
     }
 
     suspend fun getClipboard(limitSize: Long? = null): ClipboardData {
-        if (serverAddress.isEmpty()) return ClipboardData(error = "No server address configured")
+        if (serverAddress.isEmpty()) return ClipboardData(error = ERROR_NO_SERVER_CONFIGURED)
 
         for (address in serverAddress) {
             try {
@@ -103,7 +108,7 @@ class ClientService(private val serverAddress: Set<String>) {
                 Log.e("clipboard", "Failed to get clipboard from $address", e)
             }
         }
-        return ClipboardData(error = "Failed to get clipboard from any server")
+        return ClipboardData(error = ERROR_CLIPBOARD_FETCH_FAILED)
     }
 
     //server -> null => ALl
@@ -143,4 +148,3 @@ class ClientService(private val serverAddress: Set<String>) {
             }
         }
 }
-

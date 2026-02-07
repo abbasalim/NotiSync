@@ -1,3 +1,84 @@
 <resources>
     <string name="app_name">NotiSync</string>
+    <string name="clipboard_tile_label">Clipboard receive</string>
+    <string name="server_address_not_set">Server address is not set</string>
+    <string name="tile_receiving">Receiving...</string>
+    <string name="tile_content_saved">Content saved: %1$s</string>
+    <string name="tile_non_text_hint">For non-text content, use the app.</string>
+    <string name="tile_receive_error">Error receiving clipboard: %1$s</string>
+    <string name="tile_connection_error">Connection error</string>
+
+    <string name="status_settings_saved">Settings saved</string>
+    <string name="error_settings_manager_uninitialized">Error: SettingsManager not initialized</string>
+    <string name="connection_successful">Connection successful</string>
+    <string name="connection_failed">Connection failed</string>
+    <string name="excluded_apps_saved">Excluded apps list saved</string>
+    <string name="receiving_clipboard">Receiving clipboard...</string>
+    <string name="clipboard_error_prefix">Error: %1$s</string>
+    <string name="clipboard_empty">Clipboard is empty</string>
+    <string name="error_no_server_configured">No server address configured</string>
+    <string name="error_clipboard_fetch_failed">Failed to get clipboard from any server</string>
+
+    <string name="connection_help_title">Connection guide</string>
+    <string name="view_status">View</string>
+    <string name="excluded_apps_title">Don\'t send notifications for</string>
+    <string name="excluded_apps_count">%1$d apps</string>
+    <string name="server_settings_title">Server settings</string>
+    <string name="scan_qr_desc">Scan QR code</string>
+    <string name="server_ip_label">Server IP</string>
+    <string name="server_port_label">Server port</string>
+    <string name="add_server_desc">Add server</string>
+    <string name="address_duplicate">Address already exists!</string>
+    <string name="ip_invalid_format">Invalid IP format!</string>
+    <string name="address_port_required">Enter address and port!</string>
+    <string name="delete_server_desc">Delete server</string>
+    <string name="stats_title">Stats</string>
+    <string name="notifications_sent_label">Notifications sent:</string>
+    <string name="last_sent_label">Last sent:</string>
+    <string name="last_sent_never">Never</string>
+    <string name="excluded_apps_dialog_title">Select excluded apps</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="wifi_not_connected">Not connected to Wi-Fi!</string>
+    <string name="get_server_clipboard_desc">Get server clipboard</string>
+
+    <string name="permissions_required_title">Required permissions</string>
+    <string name="request_permissions">Request permissions</string>
+    <string name="permissions_intro">To use all features, please approve the permissions below:</string>
+    <string name="notif_permission_name">Notification access</string>
+    <string name="notif_permission_desc">To show received notifications</string>
+    <string name="background_permission_name">Background activity</string>
+    <string name="background_permission_desc">To receive notifications in background</string>
+    <string name="notif_reader_name">Notification read access</string>
+    <string name="notif_reader_desc">To send notifications to the computer</string>
+    <string name="all_permissions_granted">✅ All required permissions are granted</string>
+    <string name="lets_go">Let\'s go</string>
+    <string name="permission_approved">Approved</string>
+
+    <string name="app_selector_instruction">Select which apps\' notifications should NOT be sent to desktop:</string>
+    <string name="search_apps_label">Search apps</string>
+    <string name="search_desc">Search</string>
+    <string name="show_system_apps">Show system apps</string>
+
+    <string name="qr_scan_title">Scan QR code</string>
+    <string name="camera_permission_needed">Camera permission is required to scan the QR code.</string>
+    <string name="request_camera_permission">Request camera permission</string>
+
+    <string name="clipboard_title_image">Copied image</string>
+    <string name="clipboard_title_file">Copied file</string>
+    <string name="clipboard_title_text">Copied text</string>
+    <string name="clipboard_image_desc">Copied image</string>
+    <string name="clipboard_file_desc">File</string>
+    <string name="copy">Copy</string>
+    <string name="share">Share</string>
+    <string name="share_with">Share with...</string>
+
+    <string name="wifi_connected_desc">Connected</string>
+    <string name="wifi_disconnected_desc">Wi-Fi disconnected</string>
+    <string name="server_settings_desc">Server settings</string>
+
+    <string name="forwarding_notification_title">Synchronizing notifications</string>
+    <string name="forwarding_notification_text">To keep the service running, Android requires this notification to be shown permanently.</string>
+    <string name="notification_channel_name">Notification Forwarding Service</string>
+    <string name="notification_channel_desc">Service for forwarding notifications to desktop</string>
 </resources>

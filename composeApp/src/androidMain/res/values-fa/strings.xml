@@ -1,0 +1,84 @@
+<resources>
+    <string name="app_name">نوتی‌سینک</string>
+    <string name="clipboard_tile_label">دریافت کلیپ‌بورد</string>
+    <string name="server_address_not_set">آدرس سرور تنظیم نشده است</string>
+    <string name="tile_receiving">در حال دریافت...</string>
+    <string name="tile_content_saved">محتوی ذخیره شد: %1$s</string>
+    <string name="tile_non_text_hint">برای دریافت محتوی غیرمتنی از درون برنامه اقدام نمایید.</string>
+    <string name="tile_receive_error">خطا در دریافت کلیپ‌بورد: %1$s</string>
+    <string name="tile_connection_error">خطا در اتصال</string>
+
+    <string name="status_settings_saved">تنظیمات ذخیره شد</string>
+    <string name="error_settings_manager_uninitialized">خطا: SettingsManager مقداردهی نشده</string>
+    <string name="connection_successful">اتصال موفقیت آمیز</string>
+    <string name="connection_failed">اتصال ناموفق</string>
+    <string name="excluded_apps_saved">لیست برنامه‌های مستثنی ذخیره شد</string>
+    <string name="receiving_clipboard">در حال دریافت کلیپ بورد...</string>
+    <string name="clipboard_error_prefix">خطا: %1$s</string>
+    <string name="clipboard_empty">محتوی در کلیپ‌بورد نیست!</string>
+    <string name="error_no_server_configured">آدرس سرور تنظیم نشده است</string>
+    <string name="error_clipboard_fetch_failed">دریافت کلیپ‌بورد از هیچ سروری ممکن نشد</string>
+
+    <string name="connection_help_title">راهنمای اتصال</string>
+    <string name="view_status">مشاهده</string>
+    <string name="excluded_apps_title">عدم ارسال اعلان برای</string>
+    <string name="excluded_apps_count">%1$d برنامه</string>
+    <string name="server_settings_title">تنظیمات سرور</string>
+    <string name="scan_qr_desc">اسکن QR کد</string>
+    <string name="server_ip_label">IP سرور</string>
+    <string name="server_port_label">پورت سرور</string>
+    <string name="add_server_desc">افزودن سرور</string>
+    <string name="address_duplicate">آدرس تکراری است!</string>
+    <string name="ip_invalid_format">فرمت IP وارد شده صحیح نیست!</string>
+    <string name="address_port_required">آدرس و پورت را وارد کنید!</string>
+    <string name="delete_server_desc">حذف سرور</string>
+    <string name="stats_title">آمار</string>
+    <string name="notifications_sent_label">نوتیفیکیشن‌های ارسال شده:</string>
+    <string name="last_sent_label">آخرین ارسال:</string>
+    <string name="last_sent_never">هرگز</string>
+    <string name="excluded_apps_dialog_title">انتخاب برنامه‌های مستثنی</string>
+    <string name="cancel">انصراف</string>
+    <string name="save">ذخیره</string>
+    <string name="wifi_not_connected">به شبکه Wi-Fi متصل نیستید!</string>
+    <string name="get_server_clipboard_desc">دریافت کلیپ‌بورد سرور</string>
+
+    <string name="permissions_required_title">مجوزهای مورد نیاز</string>
+    <string name="request_permissions">درخواست دسترسی‌ها</string>
+    <string name="permissions_intro">برای استفاده از تمام قابلیت‌های برنامه، لطفاً دسترسی‌های زیر را تأیید کنید:</string>
+    <string name="notif_permission_name">دسترسی به اعلان‌ها</string>
+    <string name="notif_permission_desc">برای نمایش اعلان‌های دریافتی</string>
+    <string name="background_permission_name">اجازه فعالیت در پس‌زمینه</string>
+    <string name="background_permission_desc">برای دریافت اعلان‌ها در پس‌زمینه</string>
+    <string name="notif_reader_name">دسترسی خواندن اعلان‌ها</string>
+    <string name="notif_reader_desc">برای ارسال اعلان‌های به کامپیوتر</string>
+    <string name="all_permissions_granted">✅ تمام دسترسی‌های مورد نیاز تأیید شدند</string>
+    <string name="lets_go">بزن بریم</string>
+    <string name="permission_approved">تأیید شد</string>
+
+    <string name="app_selector_instruction">انتخاب کنید، اعلان مربوط به کدام برنامه ها برای دسکتاپ ارسال نشود:</string>
+    <string name="search_apps_label">جستجوی برنامه‌ها</string>
+    <string name="search_desc">جستجو</string>
+    <string name="show_system_apps">نمایش برنامه‌‌های سیستمی</string>
+
+    <string name="qr_scan_title">اسکن QR کد</string>
+    <string name="camera_permission_needed">برای اسکن QR کد، مجوز دسترسی به دوربین مورد نیاز است.</string>
+    <string name="request_camera_permission">درخواست مجوز دوربین</string>
+
+    <string name="clipboard_title_image">تصویر کپی شده</string>
+    <string name="clipboard_title_file">فایل کپی شده</string>
+    <string name="clipboard_title_text">متن کپی شده</string>
+    <string name="clipboard_image_desc">تصویر کپی شده</string>
+    <string name="clipboard_file_desc">فایل</string>
+    <string name="copy">کپی</string>
+    <string name="share">اشتراک‌گذاری</string>
+    <string name="share_with">اشتراک‌گذاری با...</string>
+
+    <string name="wifi_connected_desc">متصل</string>
+    <string name="wifi_disconnected_desc">وای‌فای قطع است</string>
+    <string name="server_settings_desc">تنظیمات سرور</string>
+
+    <string name="forwarding_notification_title">همگام سازی اعلانات</string>
+    <string name="forwarding_notification_text">برای اجرا ماندن سرویس، طبق قوانین اندروید، این اعلان به صورت دائمی نشان می‌باشد.</string>
+    <string name="notification_channel_name">سرویس ارسال اعلان</string>
+    <string name="notification_channel_desc">سرویس ارسال اعلان‌ها به دسکتاپ</string>
+</resources>

@@ -16,8 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.esfandune.R
 import com.esfandune.util.rememberWiFiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,7 +30,7 @@ fun MainTopBar(onSettingsClick: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = "NotiSync",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
             )
         },
@@ -41,14 +43,14 @@ fun MainTopBar(onSettingsClick: () -> Unit) {
                 if (isWifiConnected) {
                     Icon(
                         imageVector = Icons.Outlined.Wifi,
-                        contentDescription = "Connected ",
+                        contentDescription = stringResource(R.string.wifi_connected_desc),
                         tint = MaterialTheme.colorScheme.primary
                     )
 
                 } else {
                     Icon(
                         imageVector = Icons.Outlined.WifiOff,
-                        contentDescription = "WiFi Disconnected",
+                        contentDescription = stringResource(R.string.wifi_disconnected_desc),
                         tint = MaterialTheme.colorScheme.tertiary
                     )
 
@@ -60,7 +62,7 @@ fun MainTopBar(onSettingsClick: () -> Unit) {
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Settings,
-                    contentDescription = "Server Settings"
+                    contentDescription = stringResource(R.string.server_settings_desc)
                 )
             }
         }

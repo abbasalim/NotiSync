@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.esfandune.R
 import com.esfandune.model.ClipboardData
 import com.esfandune.model.UiState
 import com.esfandune.service.ClientService
@@ -21,6 +22,7 @@ class MainScreenViewModel : ViewModel() {
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private var settingsManager: SettingsManager? = null
+    private var appContext: Context? = null
     var receivingClipboard = mutableStateOf(false)
     val lastClipboardData = mutableStateOf<ClipboardData?>(null)
     val showHelDialog = mutableStateOf(false)
@@ -33,6 +35,7 @@ class MainScreenViewModel : ViewModel() {
 
     fun initializeWithContext(context: Context) {
         if (settingsManager == null) {
+            appContext = context.applicationContext
             settingsManager = SettingsManager(context)
 //            checkNotificationPermission(context)
             loadSettingsFromManager()
@@ -63,7 +66,7 @@ class MainScreenViewModel : ViewModel() {
                 manager.saveSettings(newSettings)
 
                 _uiState.value = _uiState.value.copy(
-                    statusMessage = "تنظیمات ذخیره شد",
+                    statusMessage = getString(R.string.status_settings_saved),
                     serverAddress = addressList
                 )
                 testForAddressIndex?.let {
@@ -71,7 +74,7 @@ class MainScreenViewModel : ViewModel() {
                 }
             } ?: run {
                 _uiState.value = _uiState.value.copy(
-                    statusMessage = "خطا: SettingsManager مقداردهی نشده"
+                    statusMessage = getString(R.string.error_settings_manager_uninitialized)
                 )
             }
         }
@@ -81,9 +84,9 @@ class MainScreenViewModel : ViewModel() {
         getServer()?.let { notificationService ->
             viewModelScope.launch {
                 if (notificationService.testConnection(server).count { it.second } > 0) {
-                    _uiState.value = _uiState.value.copy(statusMessage = "اتصال موفقیت آمیز")
+                    _uiState.value = _uiState.value.copy(statusMessage = getString(R.string.connection_successful))
                     showServerSettings.value = false
-                } else _uiState.value = _uiState.value.copy(statusMessage = "اتصال ناموفق")
+                } else _uiState.value = _uiState.value.copy(statusMessage = getString(R.string.connection_failed))
             }
         }
     }
@@ -95,11 +98,11 @@ class MainScreenViewModel : ViewModel() {
                 manager.saveExcludedPackages(packages.toSet())
                 _uiState.value = _uiState.value.copy(
                     excludedPackages = packages.toSet(),
-                    statusMessage = "لیست برنامه‌های مستثنی ذخیره شد"
+                    statusMessage = getString(R.string.excluded_apps_saved)
                 )
             } ?: run {
                 _uiState.value = _uiState.value.copy(
-                    statusMessage = "خطا: SettingsManager مقداردهی نشده است"
+                    statusMessage = getString(R.string.error_settings_manager_uninitialized)
                 )
             }
         }
@@ -112,7 +115,7 @@ class MainScreenViewModel : ViewModel() {
 
     fun getClipboard(context: Context) {
         if (receivingClipboard.value) {
-            _uiState.value = uiState.value.copy(statusMessage = "در حال دریافت کلیپ بورد...")
+            _uiState.value = uiState.value.copy(statusMessage = context.getString(R.string.receiving_clipboard))
             return
         }
         getServer()?.let { notificationService ->
@@ -159,14 +162,26 @@ class MainScreenViewModel : ViewModel() {
                     }
 
                     !clipboardData.error.isNullOrEmpty() -> {
+                        val localizedError = when (clipboardData.error) {
+                            ClientService.ERROR_NO_SERVER_CONFIGURED ->
+                                context.getString(R.string.error_no_server_configured)
+                            ClientService.ERROR_CLIPBOARD_FETCH_FAILED ->
+                                context.getString(R.string.error_clipboard_fetch_failed)
+                            else -> clipboardData.error
+                        }
                         _uiState.value =
-                            _uiState.value.copy(statusMessage = " : ${clipboardData.error}")
+                            _uiState.value.copy(
+                                statusMessage = context.getString(
+                                    R.string.clipboard_error_prefix,
+                                    localizedError
+                                )
+                            )
                         Log.d("clipboard", "Server returned error: ${clipboardData.error}")
                     }
 
                     else -> {
                         _uiState.value =
-                            _uiState.value.copy(statusMessage = " محتوی در کلیپ برد نیست!")
+                            _uiState.value.copy(statusMessage = context.getString(R.string.clipboard_empty))
                         Log.d("clipboard", "No content in clipboard")
                     }
                 }
@@ -183,5 +198,9 @@ class MainScreenViewModel : ViewModel() {
 
     fun showMessage(msg: String) {
         _uiState.value = _uiState.value.copy(statusMessage = msg)
+    }
+
+    private fun getString(resId: Int, vararg formatArgs: Any): String {
+        return appContext?.getString(resId, *formatArgs) ?: ""
     }
 }

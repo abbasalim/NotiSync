@@ -37,9 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import com.esfandune.R
 import kotlinx.coroutines.launch
 
 @Composable
@@ -87,16 +89,16 @@ fun AppSelectorView(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("انتخاب کنید، اعلان مربوط به کدام برنامه ها برای دسکتاپ ارسال نشود:")
+            Text(stringResource(R.string.app_selector_instruction))
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Search apps") },
+                label = { Text(stringResource(R.string.search_apps_label)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
+                        contentDescription = stringResource(R.string.search_desc)
                     )
                 },
                 singleLine = true
@@ -108,7 +110,7 @@ fun AppSelectorView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(showSystemApps, onCheckedChange = { showSystemApps = it })
-                Text("نمایش برنامه‌‌های سیستمی")
+                Text(stringResource(R.string.show_system_apps))
             }
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(filteredApps, key = { it.packageName }) { appInfo ->

@@ -5,6 +5,7 @@ import android.os.Looper
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.Toast
+import com.esfandune.R
 import com.esfandune.service.ClientService
 import com.esfandune.setting.SettingsManager
 import kotlinx.coroutines.CoroutineScope
@@ -32,13 +33,13 @@ class ClipboardTileService : TileService() {
         val settings = SettingsManager(this).getSettings()
         if (settings.servers.isEmpty()) {
             handler.post {
-                showToast("آدرس سرور تنظیم نشده است")
+                showToast(getString(R.string.server_address_not_set))
             }
             return
         }
 
         // Show loading state
-        updateTileState(Tile.STATE_ACTIVE, "در حال دریافت...")
+        updateTileState(Tile.STATE_ACTIVE, getString(R.string.tile_receiving))
 
         scope.launch {
             try {
@@ -47,19 +48,31 @@ class ClipboardTileService : TileService() {
 
                 handler.post {
                     val message = when {
-                        clipboardData.text != null ->
-                            "محتوی ذخیره شد: ${clipboardData.text.take(20).let { if (clipboardData.text.length > 20) "$it..." else it }}"
-                        clipboardData.error?.contains("Content size is too large") == false -> clipboardData.error
-                        else -> "برای دریافت محتوی غیرمتنی از درون برنامه اقدام نمایید."
+                        clipboardData.text != null -> {
+                            val preview = clipboardData.text.take(20).let {
+                                if (clipboardData.text.length > 20) "$it..." else it
+                            }
+                            getString(R.string.tile_content_saved, preview)
+                        }
+                        clipboardData.error?.contains("Content size is too large") == false -> {
+                            when (clipboardData.error) {
+                                ClientService.ERROR_NO_SERVER_CONFIGURED ->
+                                    getString(R.string.error_no_server_configured)
+                                ClientService.ERROR_CLIPBOARD_FETCH_FAILED ->
+                                    getString(R.string.error_clipboard_fetch_failed)
+                                else -> clipboardData.error ?: ""
+                            }
+                        }
+                        else -> getString(R.string.tile_non_text_hint)
                     }
                     showToast(message)
                 }
-                updateTileState(Tile.STATE_INACTIVE, "دریافت کلیپ‌بورد")
+                updateTileState(Tile.STATE_INACTIVE, getString(R.string.clipboard_tile_label))
 
             } catch (e: Exception) {
                 handler.post {
-                    showToast("خطا در دریافت کلیپ‌بورد: ${e.message}")
-                    updateTileState(Tile.STATE_UNAVAILABLE, "خطا در اتصال")
+                    showToast(getString(R.string.tile_receive_error, e.message ?: ""))
+                    updateTileState(Tile.STATE_UNAVAILABLE, getString(R.string.tile_connection_error))
                 }
             }
         }

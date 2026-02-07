@@ -85,6 +85,9 @@ class NotificationForwardingService : Service() {
 
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                stopSelf(startId)
             }
         }
 
@@ -102,18 +105,18 @@ class NotificationForwardingService : Service() {
 
     private fun createForegroundNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("همگام سازی اعلانات")
-            .setContentText("برای اجرا ماندن سرویس، طبق قوانین اندروید، این اعلان به صورت دائمی نشان می‌باشد.")
+            .setContentTitle(getString(R.string.forwarding_notification_title))
+            .setContentText(getString(R.string.forwarding_notification_text))
             .setSmallIcon(R.drawable.ic_launcher_monochrome)
             .build()
     }
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "Notification Forwarding Service",
+            getString(R.string.notification_channel_name),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Service for forwarding notifications to desktop"
+            description = getString(R.string.notification_channel_desc)
         }
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannel(channel)

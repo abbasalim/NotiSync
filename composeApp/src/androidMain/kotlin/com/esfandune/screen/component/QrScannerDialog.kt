@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -45,6 +46,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.esfandune.R
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.Executors
@@ -93,14 +95,14 @@ fun QrScannerDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "اسکن QR کد",
+                    text = stringResource(R.string.qr_scan_title),
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 if (!hasCameraPermission) {
                     Text(
-                        text = "برای اسکن QR کد، مجوز دسترسی به دوربین مورد نیاز است.",
+                        text = stringResource(R.string.camera_permission_needed),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(16.dp)
@@ -110,7 +112,7 @@ fun QrScannerDialog(
                         onClick = { launcher.launch(Manifest.permission.CAMERA) },
                         modifier = Modifier.padding(top = 16.dp)
                     ) {
-                        Text("درخواست مجوز دوربین")
+                        Text(stringResource(R.string.request_camera_permission))
                     }
                 } else {
                     CameraPreview(
@@ -136,7 +138,7 @@ fun QrScannerDialog(
                             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     ) {
-                        Text("انصراف")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             }

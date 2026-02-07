@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,6 +51,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.esfandune.R
 import com.esfandune.model.PermissionItem
 import com.esfandune.util.checkNotificationPermission
 
@@ -68,8 +70,8 @@ fun PermissionHandlerScreen(
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         requiredPermissions.add(
             PermissionItem(
-                name = "دسترسی به اعلان‌ها",
-                description = "برای نمایش اعلان‌های دریافتی",
+                name = stringResource(R.string.notif_permission_name),
+                description = stringResource(R.string.notif_permission_desc),
                 permission = Manifest.permission.POST_NOTIFICATIONS
             )
         )
@@ -77,8 +79,8 @@ fun PermissionHandlerScreen(
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         requiredPermissions.add(
             PermissionItem(
-                name = "اجازه فعالیت در پس‌زمینه",
-                description = "برای دریافت اعلان‌ها در پس‌زمینه",
+                name = stringResource(R.string.background_permission_name),
+                description = stringResource(R.string.background_permission_desc),
                 permission = Manifest.permission.FOREGROUND_SERVICE
             )
         )
@@ -132,7 +134,7 @@ fun PermissionHandlerScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "مجوزهای مورد نیاز",
+                        text = stringResource(R.string.permissions_required_title),
                         style = MaterialTheme.typography.headlineSmall
                     )
                 },
@@ -170,7 +172,7 @@ fun PermissionHandlerScreen(
                                 .height(56.dp),
                             shape = RoundedCornerShape(12.dp),
                         ) {
-                            Text("درخواست دسترسی‌ها", fontSize = 16.sp)
+                            Text(stringResource(R.string.request_permissions), fontSize = 16.sp)
                         }
                     }
                 }
@@ -186,7 +188,7 @@ fun PermissionHandlerScreen(
         ) {
             item {
                 Text(
-                    text = "برای استفاده از تمام قابلیت‌های برنامه، لطفاً دسترسی‌های زیر را تأیید کنید:",
+                    text = stringResource(R.string.permissions_intro),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -203,8 +205,8 @@ fun PermissionHandlerScreen(
             item {
                 PermissionItemCard(
                     permission = PermissionItem(
-                        name = "دسترسی خواندن اعلان‌ها",
-                        description = "برای ارسال اعلان‌های به کامپیوتر",
+                        name = stringResource(R.string.notif_reader_name),
+                        description = stringResource(R.string.notif_reader_desc),
                         permission = " "
                     ),
                     isGranted = checkNotificationPermission(context)
@@ -222,12 +224,12 @@ fun PermissionHandlerScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "✅ تمام دسترسی‌های مورد نیاز تأیید شدند",
+                            text = stringResource(R.string.all_permissions_granted),
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
-                        Button(onClick = { onAllPermissionsGranted() }) { Text("بزن بریم") }
+                        Button(onClick = { onAllPermissionsGranted() }) { Text(stringResource(R.string.lets_go)) }
                     }
                 }
             }
@@ -299,7 +301,7 @@ private fun PermissionItemCard(
 
             if (isGranted) {
                 Text(
-                    text = "تأیید شد",
+                    text = stringResource(R.string.permission_approved),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.padding(start = 8.dp)
@@ -308,6 +310,4 @@ private fun PermissionItemCard(
         }
     }
 }
-
-
 

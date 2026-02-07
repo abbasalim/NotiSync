@@ -44,9 +44,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import com.esfandune.R
 import com.esfandune.model.ClipboardData
 import java.io.File
 import java.io.FileOutputStream
@@ -62,12 +64,19 @@ fun ClipboardContentDialog(
     val hasImage = !clipboardData.imageData.isNullOrEmpty()
     val hasFile = !clipboardData.fileData.isNullOrEmpty()
     val hasText = !clipboardData.text.isNullOrEmpty()
+    val shareWithLabel = stringResource(R.string.share_with)
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = if (hasImage) "تصویر کپی شده" else if (hasFile) "فایل کپی شده" else "متن کپی شده",
+                text = if (hasImage) {
+                    stringResource(R.string.clipboard_title_image)
+                } else if (hasFile) {
+                    stringResource(R.string.clipboard_title_file)
+                } else {
+                    stringResource(R.string.clipboard_title_text)
+                },
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
@@ -99,7 +108,7 @@ fun ClipboardContentDialog(
                     ) {
                         Image(
                             bitmap = bitmap.asImageBitmap(),
-                            contentDescription = "تصویر کپی شده",
+                            contentDescription = stringResource(R.string.clipboard_image_desc),
                             contentScale = ContentScale.Fit,
                             modifier = Modifier
                                 .fillMaxSize()
@@ -124,7 +133,7 @@ fun ClipboardContentDialog(
                     ) {
                         Icon(
                             Icons.Default.FileCopy,
-                            contentDescription = "فایل",
+                            contentDescription = stringResource(R.string.clipboard_file_desc),
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -193,11 +202,11 @@ fun ClipboardContentDialog(
             ) {
                 Icon(
                     Icons.Default.ContentCopy,
-                    contentDescription = "کپی",
+                    contentDescription = stringResource(R.string.copy),
                     modifier = Modifier.size(ButtonDefaults.IconSize)
                 )
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Text("کپی")
+                Text(stringResource(R.string.copy))
             }
 
         },
@@ -231,18 +240,18 @@ fun ClipboardContentDialog(
                     context.startActivity(
                         Intent.createChooser(
                             shareIntent,
-                            "اشتراک‌گذاری با..."
+                            shareWithLabel
                         )
                     )
                 },
             ) {
                 Icon(
                     Icons.Default.Share,
-                    contentDescription = "اشتراک‌گذاری",
+                    contentDescription = stringResource(R.string.share),
                     modifier = Modifier.size(ButtonDefaults.IconSize)
                 )
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Text("اشتراک‌گذاری")
+                Text(stringResource(R.string.share))
             }
         },
         modifier = Modifier.padding(16.dp)

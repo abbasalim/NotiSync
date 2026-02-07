@@ -9,6 +9,7 @@ import android.content.Intent
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.esfandune.setting.SettingsManager
 import com.esfandune.util.WiFiStateManager
 import kotlin.text.category
@@ -74,7 +75,7 @@ class NotificationListenerService : NotificationListenerService() {
                 putExtra("progressMax", progressMax)
                 putExtra("progressIndeterminate", progressIndeterminate)
             }
-            startService(intent)
+            ContextCompat.startForegroundService(this, intent)
         }
     }
 

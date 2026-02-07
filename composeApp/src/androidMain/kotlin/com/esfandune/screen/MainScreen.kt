@@ -63,11 +63,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.esfandune.R
 import com.esfandune.component.selector.AppSelectorView
 import com.esfandune.screen.component.ClipboardContentDialog
 import com.esfandune.screen.component.MainTopBar
@@ -87,6 +89,10 @@ fun MainScreen() {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.uiState.collectAsState()
+    val addressDuplicateMessage = stringResource(R.string.address_duplicate)
+    val ipInvalidFormatMessage = stringResource(R.string.ip_invalid_format)
+    val addressPortRequiredMessage = stringResource(R.string.address_port_required)
+    val wifiNotConnectedMessage = stringResource(R.string.wifi_not_connected)
 
     val IP_ADDRESS_PATTERN: Pattern = Pattern.compile(
         "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
@@ -165,8 +171,8 @@ fun MainScreen() {
                     modifier = Modifier
                         .weight(1f)
                         .scale(if (viewModel.uiState.collectAsState().value.serverAddress.isEmpty()) scale else 1f),
-                    title = "راهنمای اتصال",
-                    status = "مشاهده",
+                    title = stringResource(R.string.connection_help_title),
+                    status = stringResource(R.string.view_status),
                     icon = Icons.AutoMirrored.Filled.Help,
                     isActive = true,
                     onClick = {
@@ -177,8 +183,8 @@ fun MainScreen() {
                 //Notif card
                 ButtonCard(
                     modifier = Modifier.weight(1f),
-                    title = "عدم ارسال اعلان برای",
-                    status = "${uiState.excludedPackages.size} برنامه ",
+                    title = stringResource(R.string.excluded_apps_title),
+                    status = stringResource(R.string.excluded_apps_count, uiState.excludedPackages.size),
                     icon = Icons.Outlined.NotificationsOff,
                     isActive = uiState.excludedPackages.isNotEmpty(),
                     onClick = {
@@ -212,7 +218,7 @@ fun MainScreen() {
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                text = "تنظیمات سرور",
+                                text = stringResource(R.string.server_settings_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -235,7 +241,7 @@ fun MainScreen() {
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.QrCode,
-                                    contentDescription = "اسکن QR کد"
+                                    contentDescription = stringResource(R.string.scan_qr_desc)
                                 )
                             }
 
@@ -246,7 +252,7 @@ fun MainScreen() {
                                         char.isDigit() || char == '.'
                                     }
                                 },
-                                label = { Text("IP سرور") },
+                                label = { Text(stringResource(R.string.server_ip_label)) },
                                 modifier = Modifier.weight(2f),
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -260,7 +266,7 @@ fun MainScreen() {
                                     viewModel.newServerPort.value =
                                         it.filter { char -> char.isDigit() }
                                 },
-                                label = { Text("پورت سرور") },
+                                label = { Text(stringResource(R.string.server_port_label)) },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                 modifier = Modifier.weight(1f),
                                 singleLine = true,
@@ -270,7 +276,7 @@ fun MainScreen() {
 
                             Icon(
                                 Icons.Filled.Add,
-                                "add",
+                                stringResource(R.string.add_server_desc),
                                 modifier = Modifier
                                     .scale(if (isValidIp) (scale*1.2f) else 1f)
                                     .clickable {
@@ -282,13 +288,13 @@ fun MainScreen() {
                                                 addressList.add(0,newAddress)
                                                 viewModel.saveSettings(addressList, testForAddressIndex = 0)
                                             } else {
-                                                viewModel.showMessage("آدرس تکراری است!")
+                                                viewModel.showMessage(addressDuplicateMessage)
                                             }
                                         } else {
-                                            viewModel.showMessage("فرمت IP وارد شده صحیح نیست!")
+                                            viewModel.showMessage(ipInvalidFormatMessage)
                                         }
                                     } else {
-                                        viewModel.showMessage("آدرس و پورت را وارد کنید!")
+                                        viewModel.showMessage(addressPortRequiredMessage)
                                     }
 
                                 })
@@ -306,7 +312,7 @@ fun MainScreen() {
                                     Text(address)
                                     Icon(
                                         Icons.Filled.Delete,
-                                        "delete",
+                                        stringResource(R.string.delete_server_desc),
                                         modifier = Modifier.clickable {
                                             addressList.remove(address)
                                             viewModel.saveSettings(addressList)
@@ -336,7 +342,7 @@ fun MainScreen() {
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "آمار",
+                            text = stringResource(R.string.stats_title),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -345,13 +351,18 @@ fun MainScreen() {
                     Spacer(modifier = Modifier.height(8.dp))
 
                     StatItem(
-                        label = "نوتیفیکیشن‌های ارسال شده:",
+                        label = stringResource(R.string.notifications_sent_label),
                         value = uiState.notificationsSent.toString()
                     )
 
+                    val lastSentValue = if (uiState.lastConnectionTime.isEmpty()) {
+                        stringResource(R.string.last_sent_never)
+                    } else {
+                        uiState.lastConnectionTime
+                    }
                     StatItem(
-                        label = "آخرین ارسال:",
-                        value = uiState.lastConnectionTime.ifEmpty { "هرگز" }
+                        label = stringResource(R.string.last_sent_label),
+                        value = lastSentValue
                     )
 
                 }
@@ -374,7 +385,7 @@ fun MainScreen() {
                             modifier = Modifier.padding(16.dp)
                         ) {
                             Text(
-                                text = "انتخاب برنامه‌های مستثنی",
+                                text = stringResource(R.string.excluded_apps_dialog_title),
                                 style = MaterialTheme.typography.headlineSmall,
                                 modifier = Modifier.padding(bottom = 16.dp)
                             )
@@ -403,9 +414,9 @@ fun MainScreen() {
                                     colors = ButtonDefaults.outlinedButtonColors(
                                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
-                                ) {
-                                    Text("انصراف")
-                                }
+                                    ) {
+                                        Text(stringResource(R.string.cancel))
+                                    }
 
                                 Button(
                                     onClick = {
@@ -417,7 +428,7 @@ fun MainScreen() {
                                         contentColor = MaterialTheme.colorScheme.onPrimary
                                     )
                                 ) {
-                                    Text("ذخیره")
+                                    Text(stringResource(R.string.save))
                                 }
                             }
                         }
@@ -457,11 +468,12 @@ private fun FAB(
 ) {
     val isWifiConnected = rememberWiFiState().value
     val context = LocalContext.current
+    val wifiNotConnectedMessage = stringResource(R.string.wifi_not_connected)
     FloatingActionButton(
         onClick = {
             if (isWifiConnected)
                 viewModel.getClipboard(context)
-            else viewModel.showMessage("به شبکه Wi-Fi متصل نیتسید!")
+            else viewModel.showMessage(wifiNotConnectedMessage)
         },
     ) {
         AnimatedContent(viewModel.receivingClipboard.value) {
@@ -470,15 +482,9 @@ private fun FAB(
             } else {
                 Icon(
                     imageVector = Icons.Outlined.ContentPaste,
-                    contentDescription = "get Server Clipboard"
+                    contentDescription = stringResource(R.string.get_server_clipboard_desc)
                 )
             }
         }
     }
 }
-
-
-
-
-
-
