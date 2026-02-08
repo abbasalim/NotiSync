@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.esfandune.ui.LocalAppStrings
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
@@ -49,6 +50,7 @@ fun QRCodeDialog(
     url: String,
     onDismiss: () -> Unit
 ) {
+    val strings = LocalAppStrings.current
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
@@ -73,14 +75,14 @@ fun QRCodeDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "QR Code",
+                        text = strings.qrTitle,
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     IconButton(onClick = onDismiss) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "بستن",
+                            contentDescription = strings.close,
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -97,7 +99,7 @@ fun QRCodeDialog(
                     val skiaImage = Image.makeFromEncoded(bitmapToByteArray(bitmap))
                     Image(
                         bitmap = skiaImage.toComposeImageBitmap(),
-                        contentDescription = "QR Code",
+                        contentDescription = strings.qrContentDescription,
                         modifier = Modifier.size(200.dp)
                     )
                 }
@@ -120,7 +122,7 @@ fun QRCodeDialog(
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("بستن")
+                    Text(strings.close)
                 }
             }
         }

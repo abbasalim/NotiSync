@@ -37,6 +37,7 @@ fun NotificationCard(
     onMarkAsRead: () -> Unit,
     onCopy: ((NotificationData) -> Unit)? = null,
 ) {
+    val strings = LocalAppStrings.current
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -95,7 +96,7 @@ fun NotificationCard(
                                     if (notification.message.isNotBlank()) {
                                         Icon(
                                             imageVector = Icons.Default.ContentCopy,
-                                            contentDescription = "Copy to clipboard",
+                                            contentDescription = strings.copyToClipboard,
                                             modifier = Modifier.clickable {
                                                 copy(notification)
                                             }.size(18.dp),
@@ -126,7 +127,7 @@ fun NotificationCard(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "حذف اعلان",
+                    contentDescription = strings.deleteNotification,
                     tint = MaterialTheme.colorScheme.tertiary,
                 )
             }

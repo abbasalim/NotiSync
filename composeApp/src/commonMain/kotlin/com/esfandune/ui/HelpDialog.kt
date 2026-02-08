@@ -33,6 +33,7 @@ fun HelpDialog(
     onDismiss: () -> Unit
 ) {
     val uriHandler = LocalUriHandler.current
+    val strings = LocalAppStrings.current
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = MaterialTheme.shapes.medium,
@@ -47,7 +48,7 @@ fun HelpDialog(
             ) {
                 // Title
                 Text(
-                    text = "راهنمای کار با برنامه",
+                    text = strings.helpTitle,
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
@@ -57,7 +58,7 @@ fun HelpDialog(
 
 
                 Text(
-                    text = "0. برنامه دسکتاپ را از سایت زیر نصب نمایید:",
+                    text = strings.helpStep0,
                 )
                 OutlinedButton(onClick = { uriHandler.openUri("http://tools.esfandune.ir") }) {
                     Text(
@@ -66,11 +67,11 @@ fun HelpDialog(
                 }
 
                 Text(
-                    text = "1. راهنمای نصب و راه‌اندازی دسکتاپ:",
+                    text = strings.helpStep1Title,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = " برنامه دسکتاپ را اجرا کرده، برروی تنظیمات بزنید و برروی علامت بارکد کلیک کنید.",
+                    text = strings.helpStep1Body,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
@@ -78,7 +79,7 @@ fun HelpDialog(
                 // Desktop Help Image
                 Image(
                     painter = painterResource(Res.drawable.hlp_desktop),
-                    contentDescription = "راهنمای دسکتاپ",
+                    contentDescription = strings.helpDesktopImageDesc,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
@@ -88,11 +89,11 @@ fun HelpDialog(
 
                 // Text 2
                 Text(
-                    text = "2. اتصال دستگاه موبایل:",
+                    text = strings.helpStep2Title,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = " در برنامه موبایل، برروی تنظیمات زده و علامت بارکد را لمس کنید تا دوربین باز شده و آن را جلو بارکد قرار دهید. بعد از تکمیل آی پی و پورت برروی علامت (+) جهت ذخیره کلیک نمایید.",
+                    text = strings.helpStep2Body,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
@@ -100,7 +101,7 @@ fun HelpDialog(
                 // Mobile Help Image
                 Image(
                     painter = painterResource(Res.drawable.hlp_mobile),
-                    contentDescription = "راهنمای موبایل",
+                    contentDescription = strings.helpMobileImageDesc,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
@@ -110,11 +111,11 @@ fun HelpDialog(
 
                 // Text 3
                 Text(
-                    text = "3. شروع استفاده:",
+                    text = strings.helpStep3Title,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "در صورت اتصال موفق، می‌توانید از قابلیت‌های برنامه استفاده کنید. اعلان‌های شما به صورت خودکار همگام‌سازی می‌شوند.",
+                    text = strings.helpStep3Body,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
@@ -126,7 +127,7 @@ fun HelpDialog(
                     onClick = onDismiss,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
-                    Text("متوجه شدم")
+                    Text(strings.helpUnderstood)
                 }
             }
         }

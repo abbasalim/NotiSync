@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.esfandune.NotificationManager
+import com.esfandune.ui.LocalAppStrings
 import com.esfandune.ui.NotificationCard
 import com.esfandune.ui.sendReadConfirmation
 import kotlinx.coroutines.launch
@@ -28,6 +29,7 @@ fun NotifList(
     showSnackbar: (String) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val strings = LocalAppStrings.current
     val notifs =
         notificationManager.notifications.filter { selectedPackage == null || it.first().packageName == selectedPackage }
     if (notifs.isEmpty()) {
@@ -37,7 +39,7 @@ fun NotifList(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "هیچ نوتیفیکیشنی وجود ندارد",
+                text = strings.emptyNotifications,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -71,7 +73,7 @@ fun NotifList(
                         onCopy = { data ->
                             val clipboard = Toolkit.getDefaultToolkit().systemClipboard
                             clipboard.setContents(StringSelection(data.message), null)
-                            showSnackbar("متن کپی شد")
+                            showSnackbar(strings.copied)
                         }
                     )
                 }

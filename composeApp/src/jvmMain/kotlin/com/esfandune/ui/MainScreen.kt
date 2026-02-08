@@ -32,6 +32,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.esfandune.NotificationManager
 import com.esfandune.model.NotificationData
+import com.esfandune.ui.AppLanguage
+import com.esfandune.ui.LocalAppStrings
 import com.esfandune.ui.component.ConnectCardInfo
 import com.esfandune.ui.component.MainTopBar
 import com.esfandune.ui.component.NotifList
@@ -44,10 +46,16 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun MainApp(notificationManager: NotificationManager,port:Int) {
+fun MainApp(
+    notificationManager: NotificationManager,
+    port: Int,
+    language: AppLanguage,
+    onToggleLanguage: () -> Unit
+) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedPackage by remember { mutableStateOf<String?>(null) }
+    val strings = LocalAppStrings.current
 
 
     @Composable
@@ -61,7 +69,7 @@ fun MainApp(notificationManager: NotificationManager,port:Int) {
             FilterChip(
                 selected = selectedPackage == null,
                 onClick = { selectedPackage = null },
-                label = { Text("همه") },
+                label = { Text(strings.filterAll) },
                 modifier = Modifier.padding(end = 4.dp)
             )
             notificationManager.notifications.distinctBy { it.first().packageName }.forEach { app ->
@@ -89,13 +97,15 @@ fun MainApp(notificationManager: NotificationManager,port:Int) {
                 TopAppBar(
                     title = {
                         Text(
-                            text = "NotiSync",
+                            text = strings.appName,
                             style = MaterialTheme.typography.headlineSmall
                         )
                     },
                     actions = {
                         MainTopBar(
                             notificationManager,
+                            language = language,
+                            onToggleLanguage = onToggleLanguage,
                             showSnackbar = {
                                 coroutineScope.launch {
                                     snackbarHostState.showSnackbar(it)
@@ -114,14 +124,14 @@ fun MainApp(notificationManager: NotificationManager,port:Int) {
                         onClick = {
                             coroutineScope.launch {
                                 notificationManager.clearAll()
-                                snackbarHostState.showSnackbar("تمامی اعلان‌ها پاک شدند")
+                                snackbarHostState.showSnackbar(strings.notificationsCleared)
                             }
                         },
                         containerColor = MaterialTheme.colorScheme.primaryContainer
                     ) {
                         Icon(
                             imageVector = Icons.Default.ClearAll,
-                            contentDescription = "پاک کردن همه"
+                            contentDescription = strings.clearAllContentDescription
                         )
                     }
                 }

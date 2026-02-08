@@ -19,12 +19,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.esfandune.ui.LocalAppStrings
 import com.esfandune.ui.QRCodeDialog
 import com.esfandune.util.getDeviceIp
 
 @Composable
 fun ConnectCardInfo(port:Int) {
     var showQRDialog by remember { mutableStateOf(false) }
+    val strings = LocalAppStrings.current
     if (showQRDialog) {
         QRCodeDialog(
             url = "http://${getDeviceIp()}:$port",
@@ -53,11 +55,10 @@ fun ConnectCardInfo(port:Int) {
             ) {
                 Icon(
                     imageVector = Icons.Default.QrCode,
-                    contentDescription = "نمایش QR Code",
+                    contentDescription = strings.showQr,
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
     }
 }
-
